@@ -1,45 +1,44 @@
-import { db } from "@/db";
-import { products } from "@/db/schema";
-import Image from "next/image";
-import AddToCartButton from "@/components/modern/AddToCartButton";
+import { Suspense } from "react";
+import HeroCinematic from "@/components/modern/HeroCinematic";
+import ProductCarousel from "@/components/modern/ProductCarousel";
+import ProductGrid from "@/components/modern/ProductGrid";
 
-export default async function ModernStorefront() {
-  // 1. SERVER-SIDE FETCHING: No waterfalls. Data is ready before the HTML leaves the server.
-  const data = await db.select().from(products);
-
+export default function ModernStorefront() {
   return (
-    <main className="max-w-7xl mx-auto p-8">
-      <header className="mb-12 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight mb-4">Bolt Store (Modern)</h1>
-        <p className="text-green-600 font-bold">Server-Side Rendered • Optimised Assets • Optimistic UI</p>
-      </header>
+    <main className="min-h-screen bg-white">
+      {/* 1. The High-Fidelity Hero (LCP Tester) */}
+      <HeroCinematic />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {data.map((product, index) => (
-          <div key={product.id} className="border p-4 flex flex-col">
-            
-            {/* 2. ASSET INTELLIGENCE: Explicit sizing (fill + aspect-square) prevents CLS.
-                Next.js automatically converts the 3000px Unsplash image into a lightweight AVIF. */}
-            <div className="mb-4 relative w-full aspect-square">
-              <Image 
-                src={product.imageUrl} 
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                priority={index < 4} // Tell the browser to prioritize the first 4 images for instant LCP
-                className="object-cover" 
-              />
-            </div>
-            
-            <h2 className="text-lg font-bold">{product.name}</h2>
-            <p className="text-sm text-gray-600 mb-4 flex-grow">{product.description}</p>
-            <p className="font-bold text-xl mb-4">£{(product.price / 100).toFixed(2)}</p>
-            
-            {/* 3. OPTIMISTIC UI: The isolated client component */}
-            <AddToCartButton productId={product.id} />
-          </div>
-        ))}
+      <div className="max-w-[1600px] mx-auto">
+        {/* 2. The JS-Free Carousel (INP Tester) */}
+        <Suspense fallback={<div className="h-[500px] bg-gray-100 animate-pulse mb-20 rounded-xl mx-4"></div>}>
+          <ProductCarousel />
+        </Suspense>
+
+        {/* 3. The Full Catalog Grid */}
+        <section id="shop" className="px-4 md:px-8 pb-24">
+          <h2 className="text-3xl font-extrabold tracking-tight mb-8">The Collection</h2>
+          <Suspense fallback={<ProductGridSkeleton />}>
+            <ProductGrid />
+          </Suspense>
+        </section>
       </div>
     </main>
+  );
+}
+
+function ProductGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="border p-4 flex flex-col h-[400px] animate-pulse">
+          <div className="bg-gray-200 w-full aspect-square mb-4 rounded-lg"></div>
+          <div className="bg-gray-200 h-6 w-3/4 mb-2"></div>
+          <div className="bg-gray-200 h-4 w-full mb-4 flex-grow"></div>
+          <div className="bg-gray-200 h-8 w-1/4 mb-4"></div>
+          <div className="bg-gray-300 h-10 w-full mt-auto rounded"></div>
+        </div>
+      ))}
+    </div>
   );
 }
