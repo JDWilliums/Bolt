@@ -6,8 +6,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import LiveStock from "@/components/modern/LiveStock";
-import { unstable_cache } from "next/cache"; // <-- 1. Import the Next.js cache utility
+import AddToCartButton from "@/components/modern/AddToCartButton";
+import { unstable_cache } from "next/cache";
 
+// Pre-generate all product pages at build time (SSG).
+// When a user hovers a product card, the browser prefetches
+// a fully cached static HTML shell — resulting in 0ms TTFB.
 export async function generateStaticParams() {
   const allProducts = await db.select({ id: products.id }).from(products);
   return allProducts.map((product) => ({
@@ -15,55 +19,101 @@ export async function generateStaticParams() {
   }));
 }
 
-// 2. NEW: Wrap the raw Drizzle query in Next.js's cache.
-// This forces the compiler to treat the database result as static HTML during the build.
 const getCachedProduct = unstable_cache(
   async (id: number) => {
-    const productData = await db.select().from(products).where(eq(products.id, id));
-    return productData[0];
+    const result = await db.select().from(products).where(eq(products.id, id));
+    return result[0];
   },
-  ['product-detail-cache'] // A unique tag for this cache
+  ["product-detail-cache"]
 );
 
+const sizes = ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10", "UK 11", "UK 12"];
+
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
-  
-  // 3. Call the cached wrapper instead of the raw database!
-  const product = await getCachedProduct(Number(resolvedParams.id));
+  const { id } = await params;
+  const product = await getCachedProduct(Number(id));
 
   if (!product) return notFound();
 
   return (
-    <main className="max-w-4xl mx-auto p-8">
-      <Link href="/experimental/modern" className="text-blue-600 hover:underline mb-8 inline-block">&larr; Back to Grid</Link>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="relative aspect-square w-full">
-          <Image 
-            src={product.imageUrl} 
-            alt={product.name} 
-            fill 
+    <main className="max-w-[1600px] mx-auto px-4 md:px-8 py-8">
+      <Link
+        href="/experimental/modern"
+        className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-black mb-8 transition-colors"
+        prefetch={true}
+      >
+        &larr; Back to Shop
+      </Link>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+        {/* PRODUCT IMAGE — optimised via next/image */}
+        <div className="bg-neutral-100 rounded-2xl overflow-hidden relative aspect-square">
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
-            className="object-cover rounded-xl shadow-2xl" 
+            className="object-cover"
           />
         </div>
+
+        {/* PRODUCT INFO */}
         <div className="flex flex-col justify-center">
-          <h1 className="text-4xl font-extrabold mb-2">{product.name}</h1>
-          <p className="text-gray-500 mb-6">{product.category}</p>
+          <p className="text-sm text-neutral-500 mb-1">{product.category}</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">{product.name}</h1>
           <p className="text-2xl font-bold mb-4">£{(product.price / 100).toFixed(2)}</p>
-          
+
+          {/* LIVE STOCK — streams in via Suspense after the shell renders */}
           <div className="mb-6 h-6">
-            <Suspense fallback={<div className="h-4 w-32 bg-gray-200 animate-pulse rounded"></div>}>
+            <Suspense fallback={<div className="h-5 w-32 bg-neutral-100 animate-pulse rounded"></div>}>
               <LiveStock productId={product.id} />
             </Suspense>
           </div>
 
-          <p className="text-lg text-gray-700 mb-8">{product.description}</p>
-          <button className="bg-black text-white py-4 px-8 rounded-full font-bold hover:bg-gray-800 transition-all transform hover:scale-105">
-            Checkout Now
-          </button>
+          <p className="text-neutral-600 mb-8 leading-relaxed">{product.description}</p>
+
+          {/* SIZE SELECTOR — static, no JS needed */}
+          <div className="mb-8">
+            <h3 className="text-sm font-bold mb-3">Select Size</h3>
+            <SizeSelector />
+          </div>
+
+          {/* OPTIMISTIC ADD TO CART */}
+          <AddToCartButton productId={product.id} />
+
+          {/* Shipping info */}
+          <div className="mt-8 space-y-3 text-sm text-neutral-500">
+            <div className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H18.75m-7.5-2.25H6.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h12m-3-3V9.375c0-.621-.504-1.125-1.125-1.125h-2.25c-.621 0-1.125.504-1.125 1.125v3.375m-6 0V9.375c0-.621-.504-1.125-1.125-1.125H6.375c-.621 0-1.125.504-1.125 1.125v3.375" />
+              </svg>
+              Free delivery on orders over £50
+            </div>
+            <div className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+              </svg>
+              Free 30-day returns
+            </div>
+          </div>
         </div>
       </div>
     </main>
+  );
+}
+
+function SizeSelector() {
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {sizes.map((size) => (
+        <label key={size} className="cursor-pointer">
+          <input type="radio" name="size" value={size} className="peer sr-only" />
+          <div className="py-3 border rounded-lg text-sm font-medium text-center transition-colors border-neutral-200 hover:border-black peer-checked:border-black peer-checked:bg-black peer-checked:text-white">
+            {size}
+          </div>
+        </label>
+      ))}
+    </div>
   );
 }

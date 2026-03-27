@@ -1,0 +1,14 @@
+import { Suspense } from "react";
+import LegacyProductView from "./LegacyProductView";
+
+export default function LegacyProductPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="w-12 h-12 border-4 border-neutral-200 border-t-black rounded-full animate-spin"></div>
+      </div>
+    }>
+      <LegacyProductView />
+    </Suspense>
+  );
+}

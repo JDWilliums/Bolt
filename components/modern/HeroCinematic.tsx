@@ -7,7 +7,7 @@ export default function HeroCinematic() {
       {/* BACKGROUND IMAGE: Heavily optimized for LCP */}
       <div className="absolute inset-0 z-0 bg-black">
         <Image
-          src="https://images.unsplash.com/photo-1552346154-21d32810baa3?q=100&w=3000&auto=format&fit=crop"
+          src="https://images.unsplash.com/photo-1556906781-9a412961c28c?q=100&w=3000&auto=format&fit=crop"
           alt="Athlete running on a track"
           fill
           priority // CRITICAL: Tells Next.js this is the LCP element
