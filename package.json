@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "benchmark": "tsx scripts/benchmark.ts",
+    "benchmark:fast": "tsx scripts/benchmark.ts --iterations 1",
     "benchmark:quick": "tsx scripts/benchmark.ts --iterations 3",
+    "benchmark:all": "tsx scripts/benchmark.ts --profile all",
+    "benchmark:all:fast": "tsx scripts/benchmark.ts --profile all --iterations 1",
+    "benchmark:all:quick": "tsx scripts/benchmark.ts --profile all --iterations 3",
     "benchmark:vercel": "tsx scripts/benchmark.ts --base https://bolt.codebyjack.dev",
     "seed": "tsx db/seed.ts",
     "generate-blurs": "tsx scripts/generate-blurs.ts"

@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
-      <div className="max-w-3xl text-center mb-16">
+      <div className="max-w-4xl text-center mb-16">
         <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter uppercase mb-4">
           Bolt
         </h1>
@@ -14,14 +14,27 @@ export default function LandingPage() {
         <p className="text-sm text-neutral-600 mt-2">Jack Williams — ST20271634 — Cardiff Metropolitan University</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl">
-        {/* Control Group */}
+      {/* ─── STAGE PROGRESSION ─────────────────────────────────── */}
+      <div className="w-full max-w-4xl mb-8">
+        <div className="flex items-center justify-center gap-2 text-xs text-neutral-600 mb-8">
+          <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full font-bold">Control</span>
+          <span className="text-neutral-700">→</span>
+          <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold">+ Images</span>
+          <span className="text-neutral-700">→</span>
+          <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full font-bold">+ RSC</span>
+          <span className="text-neutral-700">→</span>
+          <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold">+ PPR</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        {/* ─── CONTROL ─────────────────────────────────────────── */}
         <Link
           href="/control/legacy"
           className="group border border-neutral-800 rounded-2xl p-8 hover:border-red-500 transition-all hover:bg-neutral-950"
         >
           <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-3">
-            Group A — Control
+            Baseline — Control
           </div>
           <h2 className="text-2xl font-bold mb-3">Legacy CSR</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
@@ -39,30 +52,83 @@ export default function LandingPage() {
           </div>
         </Link>
 
-        {/* Experimental Group */}
+        {/* ─── STAGE A: IMAGE OPTIMISED ────────────────────────── */}
+        <Link
+          href="/experimental/image-opt"
+          className="group border border-neutral-800 rounded-2xl p-8 hover:border-orange-500 transition-all hover:bg-neutral-950"
+        >
+          <div className="text-xs font-bold uppercase tracking-widest text-orange-500 mb-3">
+            Stage A — Image Optimised
+          </div>
+          <h2 className="text-2xl font-bold mb-3">CSR + Optimised Images</h2>
+          <ul className="text-sm text-neutral-400 space-y-1.5">
+            <li>• <span className="text-orange-400">next/image (AVIF, quality 60, responsive)</span></li>
+            <li>• <span className="text-orange-400">Blur-up placeholders</span></li>
+            <li>• <span className="text-orange-400">fetchpriority=&quot;high&quot; on LCP images</span></li>
+            <li>• <span className="text-orange-400">Proper sizes attributes</span></li>
+            <li className="text-neutral-600">• Still client-side rendering</li>
+            <li className="text-neutral-600">• Still styled-components / blocking fonts</li>
+            <li className="text-neutral-600">• Still useEffect waterfall</li>
+            <li className="text-neutral-600">• Still pessimistic UI / localStorage cart</li>
+          </ul>
+          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
+            Open Image-Optimised Store &rarr;
+          </div>
+        </Link>
+
+        {/* ─── STAGE B: SERVER COMPONENTS ───────────────────────── */}
+        <Link
+          href="/experimental/rsc"
+          className="group border border-neutral-800 rounded-2xl p-8 hover:border-blue-500 transition-all hover:bg-neutral-950"
+        >
+          <div className="text-xs font-bold uppercase tracking-widest text-blue-500 mb-3">
+            Stage B — Server Components
+          </div>
+          <h2 className="text-2xl font-bold mb-3">RSC + Streaming</h2>
+          <ul className="text-sm text-neutral-400 space-y-1.5">
+            <li>• <span className="text-blue-400">React Server Components (zero client JS)</span></li>
+            <li>• <span className="text-blue-400">Suspense streaming with skeleton fallbacks</span></li>
+            <li>• <span className="text-blue-400">Server-side data fetching (single DB query)</span></li>
+            <li>• <span className="text-blue-400">useOptimistic for instant cart updates</span></li>
+            <li>• <span className="text-blue-400">Tailwind CSS (no runtime overhead)</span></li>
+            <li>• <span className="text-blue-400">next/font (self-hosted, no blocking)</span></li>
+            <li>• <span className="text-blue-400">Cookie-based cart via server actions</span></li>
+            <li className="text-neutral-600">• No PPR or static generation (fully dynamic)</li>
+          </ul>
+          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
+            Open RSC Store &rarr;
+          </div>
+        </Link>
+
+        {/* ─── STAGE C: FULLY OPTIMISED (PPR) ──────────────────── */}
         <Link
           href="/experimental/modern"
           className="group border border-neutral-800 rounded-2xl p-8 hover:border-green-500 transition-all hover:bg-neutral-950"
         >
           <div className="text-xs font-bold uppercase tracking-widest text-green-500 mb-3">
-            Group B — Experimental
+            Stage C — Fully Optimised
           </div>
-          <h2 className="text-2xl font-bold mb-3">Optimised RSC</h2>
+          <h2 className="text-2xl font-bold mb-3">RSC + PPR + SSG</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
-            <li>• React Server Components (zero client JS)</li>
-            <li>• Streaming with Suspense boundaries</li>
-            <li>• next/image (AVIF, lazy, blur-up placeholders)</li>
-            <li>• Self-hosted fonts via next/font</li>
-            <li>• Optimistic UI (useOptimistic)</li>
-            <li>• Link prefetching + SSG category pages</li>
-            <li>• Partial Prerendering (static shell + dynamic stream)</li>
+            <li>• <span className="text-green-400">Partial Prerendering (instant static shell)</span></li>
+            <li>• <span className="text-green-400">generateStaticParams (SSG at build time)</span></li>
+            <li>• <span className="text-green-400">Link prefetching (0ms navigation)</span></li>
+            <li>• All RSC optimisations from Stage B</li>
+            <li>• All image optimisations from Stage A</li>
             <li>• Server-side sorting (DB ORDER BY)</li>
-            <li>• Cookie-based cart with batched DB query</li>
+            <li>• Optimistic UI + cookie cart</li>
+            <li>• next/image with AVIF + blur placeholders</li>
           </ul>
           <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
-            Open Optimised Store &rarr;
+            Open Fully-Optimised Store &rarr;
           </div>
         </Link>
+      </div>
+
+      {/* ─── BENCHMARK INFO ────────────────────────────────────── */}
+      <div className="mt-12 text-center text-xs text-neutral-700 max-w-2xl">
+        <p>Each stage is benchmarked across Slow 3G, Fast 3G, and 4G network profiles.</p>
+        <p className="mt-1">Metrics: FCP, LCP, TBT, CLS, SI — 10 iterations per page, trimmed median.</p>
       </div>
     </main>
   );

@@ -2,20 +2,44 @@
 /**
  * Bolt Benchmark Script
  *
- * Runs Lighthouse programmatically against all 16 URLs, collects Core Web
- * Vitals, trims outliers, computes medians, and outputs CSV files ready
- * for the dissertation's Chapter 5 tables.
+ * Runs Lighthouse programmatically against all 4 stages across multiple
+ * network profiles, collects Core Web Vitals, trims outliers, computes
+ * medians, and outputs CSV files ready for the dissertation tables.
+ *
+ * METHODOLOGY: Uses round-robin ordering to mitigate temporal bias.
+ * Instead of running 10 iterations of the same URL back-to-back,
+ * each round cycles through ALL URLs once. This spreads measurements
+ * across the full benchmark duration so a temporary server hiccup
+ * affects at most 1 run per URL, not an entire batch.
  *
  * Usage:
- *   npm run benchmark                                           # 10 iterations, localhost
- *   npm run benchmark -- --iterations 3                         # quick 3-run test
- *   npm run benchmark -- --base https://bolt.codebyjack.dev    # test live Vercel deployment
+ *   npm run benchmark                          # 10 iterations, all stages, fast3g
+ *   npm run benchmark:fast                     # 1 iteration per URL, all stages, fast3g
+ *   npm run benchmark:quick                    # 3 iterations, all stages, fast3g
+ *   npm run benchmark:all                      # 10 iterations, all stages, ALL network profiles
+ *
+ *   # Custom:
+ *   npm run benchmark -- --iterations 5
+ *   npm run benchmark -- --profile slow3g
+ *   npm run benchmark -- --profile all         # run all 4 network profiles
+ *   npm run benchmark -- --stage control,rsc   # only specific stages
+ *   npm run benchmark -- --stage all           # all 4 stages (default)
+ *   npm run benchmark -- --base https://bolt.codebyjack.dev
  */
 
 import * as chromeLauncher from "chrome-launcher";
 import * as fs from "fs";
 import * as path from "path";
-import { TEST_URLS, METRICS, LIGHTHOUSE_FLAGS } from "./lighthouse-config";
+import {
+  STAGES,
+  ALL_STAGES,
+  ALL_PROFILES,
+  NETWORK_PROFILES,
+  getStageURLs,
+  getLighthouseFlags,
+  type StageName,
+  type NetworkProfile,
+} from "./lighthouse-config";
 
 // ─── CLI Args ────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -28,6 +52,23 @@ const BASE_URL = getArg("base", "http://localhost:3000");
 const ITERATIONS = parseInt(getArg("iterations", "10"), 10);
 const RESULTS_DIR = path.join(__dirname, "..", "results");
 const RAW_DIR = path.join(RESULTS_DIR, "raw");
+
+// Parse --stage flag
+function parseStages(): StageName[] {
+  const stageArg = getArg("stage", "all");
+  if (stageArg === "all") return [...ALL_STAGES];
+  return stageArg.split(",").map((s) => s.trim() as StageName);
+}
+
+// Parse --profile flag
+function parseProfiles(): NetworkProfile[] {
+  const profileArg = getArg("profile", "fast3g");
+  if (profileArg === "all") return [...ALL_PROFILES];
+  return profileArg.split(",").map((p) => p.trim() as NetworkProfile);
+}
+
+const stages = parseStages();
+const profiles = parseProfiles();
 
 // ─── Types ───────────────────────────────────────────────────────
 interface RunMetrics {
@@ -44,7 +85,8 @@ interface RunMetrics {
 interface URLResult {
   url: string;
   label: string;
-  group: "control" | "experimental";
+  stage: StageName;
+  profile: NetworkProfile;
   runs: RunMetrics[];
   median: RunMetrics;
 }
@@ -59,7 +101,7 @@ function median(values: number[]): number {
 }
 
 function trimOutliers(values: number[]): number[] {
-  // Discard top and bottom 10% (per dissertation Section 3.6)
+  if (values.length <= 2) return values; // Can't trim with <=2 values
   const sorted = [...values].sort((a, b) => a - b);
   const trimCount = Math.floor(sorted.length * 0.1);
   return sorted.slice(trimCount, sorted.length - trimCount);
@@ -82,18 +124,24 @@ function slugify(urlPath: string): string {
   return urlPath.replace(/^\//, "").replace(/\//g, "-") || "root";
 }
 
+function pctChange(oldVal: number, newVal: number): string {
+  if (oldVal === 0) return "N/A";
+  const pct = Math.round(((newVal - oldVal) / oldVal) * 100);
+  return `${pct}%`;
+}
+
+const RESET = "\x1b[0m";
+
 // ─── Lighthouse Runner ───────────────────────────────────────────
 async function runLighthouse(
   url: string,
-  port: number
+  port: number,
+  profile: NetworkProfile
 ): Promise<RunMetrics> {
-  // Dynamic import for ESM-only lighthouse
   const lighthouse = (await import("lighthouse")).default;
+  const flags = getLighthouseFlags(profile);
 
-  const result = await lighthouse(url, {
-    ...LIGHTHOUSE_FLAGS,
-    port,
-  });
+  const result = await lighthouse(url, { ...flags, port });
 
   if (!result || !result.lhr) {
     throw new Error(`Lighthouse failed for ${url}`);
@@ -101,7 +149,6 @@ async function runLighthouse(
 
   const { lhr } = result;
 
-  // Detect if the page actually loaded
   if (lhr.finalDisplayedUrl?.includes("chrome-error")) {
     throw new Error(`Page unreachable: ${url} — is the server running?`);
   }
@@ -112,7 +159,6 @@ async function runLighthouse(
 
   const audits = lhr.audits;
 
-  // Extract transfer sizes from network records
   const resourceSummary = audits["resource-summary"]?.details;
   let jsKB = 0;
   let totalKB = 0;
@@ -130,17 +176,14 @@ async function runLighthouse(
 
   return {
     FCP_ms: Math.round(audits["first-contentful-paint"]?.numericValue ?? 0),
-    LCP_ms: Math.round(
-      audits["largest-contentful-paint"]?.numericValue ?? 0
-    ),
+    LCP_ms: Math.round(audits["largest-contentful-paint"]?.numericValue ?? 0),
     TBT_ms: Math.round(audits["total-blocking-time"]?.numericValue ?? 0),
-    CLS: Math.round(
-      (audits["cumulative-layout-shift"]?.numericValue ?? 0) * 1000
-    ) / 1000,
+    CLS:
+      Math.round(
+        (audits["cumulative-layout-shift"]?.numericValue ?? 0) * 1000
+      ) / 1000,
     SI_ms: Math.round(audits["speed-index"]?.numericValue ?? 0),
-    TTFB_ms: Math.round(
-      audits["server-response-time"]?.numericValue ?? 0
-    ),
+    TTFB_ms: Math.round(audits["server-response-time"]?.numericValue ?? 0),
     JS_KB: jsKB,
     PageWeight_KB: totalKB,
   };
@@ -149,10 +192,10 @@ async function runLighthouse(
 // ─── CSV Writers ─────────────────────────────────────────────────
 function writeSummaryCSV(results: URLResult[]) {
   const header =
-    "URL,Group,Label,FCP_ms,LCP_ms,TBT_ms,CLS,SI_ms,TTFB_ms,JS_KB,PageWeight_KB";
+    "Stage,Profile,URL,Label,FCP_ms,LCP_ms,TBT_ms,CLS,SI_ms,TTFB_ms,JS_KB,PageWeight_KB";
   const rows = results.map((r) => {
     const m = r.median;
-    return `${r.url},${r.group},${r.label},${m.FCP_ms},${m.LCP_ms},${m.TBT_ms},${m.CLS},${m.SI_ms},${m.TTFB_ms},${m.JS_KB},${m.PageWeight_KB}`;
+    return `${r.stage},${r.profile},${r.url},${r.label},${m.FCP_ms},${m.LCP_ms},${m.TBT_ms},${m.CLS},${m.SI_ms},${m.TTFB_ms},${m.JS_KB},${m.PageWeight_KB}`;
   });
 
   const csvPath = path.join(RESULTS_DIR, "summary.csv");
@@ -161,44 +204,42 @@ function writeSummaryCSV(results: URLResult[]) {
 }
 
 function writeComparisonCSV(results: URLResult[]) {
-  const controlResults = results.filter((r) => r.group === "control");
-  const experimentalResults = results.filter(
-    (r) => r.group === "experimental"
-  );
-
   const metricKeys: (keyof RunMetrics)[] = [
-    "FCP_ms",
-    "LCP_ms",
-    "TBT_ms",
-    "CLS",
-    "SI_ms",
-    "TTFB_ms",
-    "JS_KB",
-    "PageWeight_KB",
+    "FCP_ms", "LCP_ms", "TBT_ms", "CLS", "SI_ms", "TTFB_ms", "JS_KB", "PageWeight_KB",
   ];
 
-  // Header
-  const headerParts = ["Page"];
-  for (const key of metricKeys) {
-    headerParts.push(`Control_${key}`, `Experimental_${key}`, `Delta_${key}`);
+  const headerParts = ["Page", "Profile"];
+  for (const stage of stages) {
+    for (const key of metricKeys) {
+      headerParts.push(`${stage}_${key}`);
+    }
   }
   const header = headerParts.join(",");
 
-  // Rows — match by label
   const rows: string[] = [];
-  for (const ctrl of controlResults) {
-    const exp = experimentalResults.find((e) => e.label === ctrl.label);
-    if (!exp) continue;
 
-    const parts: string[] = [ctrl.label];
-    for (const key of metricKeys) {
-      const cVal = ctrl.median[key];
-      const eVal = exp.median[key];
-      const delta =
-        cVal === 0 ? "N/A" : `${Math.round(((eVal - cVal) / cVal) * 100)}%`;
-      parts.push(String(cVal), String(eVal), delta);
+  for (const profile of profiles) {
+    const refStage = stages[0];
+    const refResults = results.filter(
+      (r) => r.stage === refStage && r.profile === profile
+    );
+
+    for (const ref of refResults) {
+      const parts: string[] = [ref.label, profile];
+
+      for (const stage of stages) {
+        const stageResult = results.find(
+          (r) =>
+            r.stage === stage &&
+            r.profile === profile &&
+            r.label === ref.label
+        );
+        for (const key of metricKeys) {
+          parts.push(stageResult ? String(stageResult.median[key]) : "N/A");
+        }
+      }
+      rows.push(parts.join(","));
     }
-    rows.push(parts.join(","));
   }
 
   const csvPath = path.join(RESULTS_DIR, "comparison.csv");
@@ -206,85 +247,261 @@ function writeComparisonCSV(results: URLResult[]) {
   console.log(`Wrote ${csvPath}`);
 }
 
+function writeMatrixCSV(results: URLResult[]) {
+  const keyMetrics: (keyof RunMetrics)[] = ["FCP_ms", "LCP_ms", "TBT_ms", "CLS", "SI_ms"];
+
+  const headerParts = ["Page", "Profile"];
+  for (const stage of stages) {
+    for (const metric of keyMetrics) {
+      headerParts.push(`${stage}_${metric}`);
+    }
+  }
+  if (stages.includes("control")) {
+    for (const stage of stages.filter((s) => s !== "control")) {
+      headerParts.push(`${stage}_vs_control_LCP_%`, `${stage}_vs_control_TBT_%`);
+    }
+  }
+
+  const header = headerParts.join(",");
+  const rows: string[] = [];
+
+  for (const profile of profiles) {
+    const controlResults = results.filter(
+      (r) => r.stage === "control" && r.profile === profile
+    );
+
+    for (const ctrl of controlResults) {
+      const parts: string[] = [ctrl.label, profile];
+
+      for (const stage of stages) {
+        const r = results.find(
+          (x) => x.stage === stage && x.profile === profile && x.label === ctrl.label
+        );
+        for (const metric of keyMetrics) {
+          parts.push(r ? String(r.median[metric]) : "N/A");
+        }
+      }
+
+      if (stages.includes("control")) {
+        for (const stage of stages.filter((s) => s !== "control")) {
+          const r = results.find(
+            (x) => x.stage === stage && x.profile === profile && x.label === ctrl.label
+          );
+          if (r) {
+            parts.push(
+              pctChange(ctrl.median.LCP_ms, r.median.LCP_ms),
+              pctChange(ctrl.median.TBT_ms, r.median.TBT_ms)
+            );
+          } else {
+            parts.push("N/A", "N/A");
+          }
+        }
+      }
+
+      rows.push(parts.join(","));
+    }
+  }
+
+  const csvPath = path.join(RESULTS_DIR, "matrix.csv");
+  fs.writeFileSync(csvPath, [header, ...rows].join("\n"));
+  console.log(`Wrote ${csvPath}`);
+}
+
+// ─── Console output ──────────────────────────────────────────────
+function printComparisonTable(results: URLResult[]) {
+  for (const profile of profiles) {
+    console.log(`\n${"=".repeat(80)}`);
+    console.log(`  ${NETWORK_PROFILES[profile].name.toUpperCase()} COMPARISON`);
+    console.log("=".repeat(80));
+
+    const stageHeaders = stages.map((s) => STAGES[s].name.substring(0, 14).padStart(16)).join("");
+    console.log(`${"Page".padEnd(20)}${"Metric".padEnd(8)}${stageHeaders}`);
+    console.log("-".repeat(20 + 8 + stages.length * 16));
+
+    const refResults = results.filter(
+      (r) => r.stage === stages[0] && r.profile === profile
+    );
+
+    for (const ref of refResults) {
+      const metricsToShow: { key: keyof RunMetrics; label: string }[] = [
+        { key: "LCP_ms", label: "LCP" },
+        { key: "TBT_ms", label: "TBT" },
+        { key: "CLS", label: "CLS" },
+        { key: "SI_ms", label: "SI" },
+      ];
+
+      for (let mi = 0; mi < metricsToShow.length; mi++) {
+        const { key, label } = metricsToShow[mi];
+        const pageName = mi === 0 ? ref.label : "";
+
+        const values = stages.map((stage) => {
+          const r = results.find(
+            (x) => x.stage === stage && x.profile === profile && x.label === ref.label
+          );
+          if (!r) return "N/A".padStart(16);
+
+          const val = r.median[key];
+          const unit = key === "CLS" ? "" : "ms";
+          const formatted = key === "CLS" ? val.toFixed(3) : String(val);
+
+          if (stage !== "control" && stages.includes("control")) {
+            const ctrl = results.find(
+              (x) => x.stage === "control" && x.profile === profile && x.label === ref.label
+            );
+            if (ctrl && ctrl.median[key] !== 0) {
+              const delta = pctChange(ctrl.median[key], val);
+              return `${formatted}${unit}(${delta})`.padStart(16);
+            }
+          }
+          return `${formatted}${unit}`.padStart(16);
+        });
+
+        console.log(`${pageName.padEnd(20)}${label.padEnd(8)}${values.join("")}`);
+      }
+      console.log("-".repeat(20 + 8 + stages.length * 16));
+    }
+  }
+}
+
 // ─── Main ────────────────────────────────────────────────────────
 async function main() {
+  // ──────────────────────────────────────────────────────────────
+  // Build the flat list of test targets (profile × stage × page).
+  // Each target will be run once per round in round-robin order.
+  // ──────────────────────────────────────────────────────────────
+  interface TestTarget {
+    profile: NetworkProfile;
+    stage: StageName;
+    urlPath: string;
+    label: string;
+  }
+
+  const targets: TestTarget[] = [];
+  for (const profile of profiles) {
+    for (const stage of stages) {
+      for (const { path: urlPath, label } of getStageURLs(stage)) {
+        targets.push({ profile, stage, urlPath, label });
+      }
+    }
+  }
+
+  const totalRuns = targets.length * ITERATIONS;
+
   console.log("=".repeat(60));
   console.log("  BOLT BENCHMARK — Dissertation Performance Measurement");
   console.log("=".repeat(60));
   console.log(`  Base URL:    ${BASE_URL}`);
   console.log(`  Iterations:  ${ITERATIONS}`);
-  console.log(`  Throttling:  Simulated Fast 3G (Mobile)`);
-  console.log(`  Device:      Moto G4 (4x CPU slowdown)`);
-  console.log(`  URLs:        ${TEST_URLS.control.length + TEST_URLS.experimental.length}`);
+  console.log(`  Ordering:    Round-robin (temporal bias mitigation)`);
+  console.log(`  Stages:      ${stages.map((s) => STAGES[s].name).join(", ")}`);
+  console.log(`  Profiles:    ${profiles.map((p) => NETWORK_PROFILES[p].name).join(", ")}`);
+  console.log(`  URLs/round:  ${targets.length} (${stages.length} stages x ${profiles.length} profiles x 8 pages)`);
+  console.log(`  Total runs:  ${totalRuns}`);
+  console.log(`  Est. time:   ~${Math.round((totalRuns * 25) / 60)} min`);
   console.log("=".repeat(60));
 
-  // Ensure output directories exist
   fs.mkdirSync(RAW_DIR, { recursive: true });
 
-  // Launch Chrome
   console.log("\nLaunching Chrome...");
   const chrome = await chromeLauncher.launch({
     chromeFlags: ["--headless", "--no-sandbox", "--disable-gpu"],
   });
   console.log(`Chrome running on port ${chrome.port}\n`);
 
-  const allResults: URLResult[] = [];
+  // Accumulate runs per target — keyed by "profile|stage|urlPath"
+  const runsMap = new Map<string, { target: TestTarget; runs: RunMetrics[] }>();
+  for (const t of targets) {
+    runsMap.set(`${t.profile}|${t.stage}|${t.urlPath}`, {
+      target: t,
+      runs: [],
+    });
+  }
 
-  // Run both groups
-  for (const [group, urls] of Object.entries(TEST_URLS) as [
-    "control" | "experimental",
-    typeof TEST_URLS.control,
-  ][]) {
-    console.log(`\n--- ${group.toUpperCase()} GROUP ---\n`);
+  // ──────────────────────────────────────────────────────────────
+  // ROUND-ROBIN EXECUTION
+  //
+  // Each round tests every URL once, cycling through all stages
+  // and network profiles. This spreads measurements across the
+  // full benchmark duration, so a temporary server hiccup (DB
+  // cold-start, GC pause, Neon wake-up) affects at most 1 run
+  // per URL rather than contaminating an entire sequential batch.
+  //
+  // For N=10 iterations across 32 URLs, the old approach would
+  // test URL #1 ten times in ~4 minutes, then move to URL #2.
+  // The round-robin approach tests all 32 URLs once (~13 min),
+  // then repeats — spreading URL #1's measurements across the
+  // full ~2 hour window.
+  // ──────────────────────────────────────────────────────────────
+  let completedRuns = 0;
+  const startTime = Date.now();
 
-    for (const { path: urlPath, label } of urls) {
-      const fullUrl = `${BASE_URL}${urlPath}`;
-      const slug = slugify(urlPath);
-      const runs: RunMetrics[] = [];
+  for (let round = 1; round <= ITERATIONS; round++) {
+    const elapsed = Date.now() - startTime;
+    const rate = completedRuns > 0 ? elapsed / completedRuns : 25000;
+    const remaining = Math.round(((totalRuns - completedRuns) * rate) / 60000);
 
-      process.stdout.write(`  ${label} (${urlPath}): `);
+    console.log(`\n${"#".repeat(60)}`);
+    console.log(
+      `  ROUND ${round} of ${ITERATIONS} — ${targets.length} URLs — ~${remaining} min remaining`
+    );
+    console.log(`${"#".repeat(60)}`);
 
-      for (let i = 1; i <= ITERATIONS; i++) {
-        try {
-          const metrics = await runLighthouse(fullUrl, chrome.port);
-          runs.push(metrics);
+    for (const t of targets) {
+      const fullUrl = `${BASE_URL}${t.urlPath}`;
+      const key = `${t.profile}|${t.stage}|${t.urlPath}`;
+      const slug = `${t.profile}-${slugify(t.urlPath)}`;
+      const stageColor = STAGES[t.stage].color;
+      const profileName = NETWORK_PROFILES[t.profile].name.padEnd(14);
 
-          // Save raw JSON
-          const rawPath = path.join(RAW_DIR, `${slug}-run-${i}.json`);
-          fs.writeFileSync(rawPath, JSON.stringify(metrics, null, 2));
+      completedRuns++;
+      const pct = Math.round((completedRuns / totalRuns) * 100);
 
-          process.stdout.write(`${i} `);
-        } catch (error) {
-          process.stdout.write(`x `);
-          console.error(
-            `\n    Run ${i} failed:`,
-            error instanceof Error ? error.message : error
-          );
-        }
-      }
-
-      if (runs.length === 0) {
-        console.log("— ALL RUNS FAILED, skipping");
-        continue;
-      }
-
-      const medianResult = computeMedian(runs);
-      allResults.push({
-        url: urlPath,
-        label,
-        group,
-        runs,
-        median: medianResult,
-      });
-
-      console.log(
-        `\n    Median: LCP=${medianResult.LCP_ms}ms TBT=${medianResult.TBT_ms}ms CLS=${medianResult.CLS} SI=${medianResult.SI_ms}ms`
+      process.stdout.write(
+        `  [${String(pct).padStart(3)}%] ${stageColor}${t.stage.padEnd(10)}${RESET} ${profileName} ${t.label.padEnd(20)} `
       );
+
+      try {
+        const metrics = await runLighthouse(fullUrl, chrome.port, t.profile);
+        runsMap.get(key)!.runs.push(metrics);
+
+        const rawPath = path.join(RAW_DIR, `${slug}-run-${round}.json`);
+        fs.writeFileSync(rawPath, JSON.stringify(metrics, null, 2));
+
+        console.log(
+          `LCP=${String(metrics.LCP_ms).padStart(6)}ms  TBT=${String(metrics.TBT_ms).padStart(5)}ms  CLS=${metrics.CLS}`
+        );
+      } catch (error) {
+        console.log(
+          `FAILED: ${error instanceof Error ? error.message : error}`
+        );
+      }
     }
   }
 
-  // Kill Chrome
   await chrome.kill();
+
+  const totalTime = Math.round((Date.now() - startTime) / 60000);
+  console.log(`\nBenchmark completed in ${totalTime} minutes.`);
+
+  // Compute medians and build results
+  const allResults: URLResult[] = [];
+  for (const { target, runs } of runsMap.values()) {
+    if (runs.length === 0) {
+      console.warn(
+        `  Warning: No successful runs for ${target.stage} ${target.profile} ${target.urlPath}`
+      );
+      continue;
+    }
+
+    allResults.push({
+      url: target.urlPath,
+      label: target.label,
+      stage: target.stage,
+      profile: target.profile,
+      runs,
+      median: computeMedian(runs),
+    });
+  }
 
   // Write CSV files
   console.log("\n" + "=".repeat(60));
@@ -293,41 +510,10 @@ async function main() {
 
   writeSummaryCSV(allResults);
   writeComparisonCSV(allResults);
+  writeMatrixCSV(allResults);
 
-  // Print comparison table to console
-  console.log("\n" + "=".repeat(60));
-  console.log("  COMPARISON TABLE (Control vs Experimental)");
-  console.log("=".repeat(60));
-  console.log(
-    `${"Page".padEnd(22)} ${"LCP".padStart(12)} ${"TBT".padStart(12)} ${"CLS".padStart(12)} ${"SI".padStart(12)}`
-  );
-  console.log("-".repeat(72));
-
-  const controlResults = allResults.filter((r) => r.group === "control");
-  const experimentalResults = allResults.filter(
-    (r) => r.group === "experimental"
-  );
-
-  for (const ctrl of controlResults) {
-    const exp = experimentalResults.find((e) => e.label === ctrl.label);
-    if (!exp) continue;
-
-    const lcpDelta = Math.round(
-      ((exp.median.LCP_ms - ctrl.median.LCP_ms) / ctrl.median.LCP_ms) * 100
-    );
-    const tbtDelta =
-      ctrl.median.TBT_ms === 0
-        ? "N/A"
-        : `${Math.round(((exp.median.TBT_ms - ctrl.median.TBT_ms) / ctrl.median.TBT_ms) * 100)}%`;
-    const clsDelta = `${ctrl.median.CLS} → ${exp.median.CLS}`;
-    const siDelta = Math.round(
-      ((exp.median.SI_ms - ctrl.median.SI_ms) / ctrl.median.SI_ms) * 100
-    );
-
-    console.log(
-      `${ctrl.label.padEnd(22)} ${`${ctrl.median.LCP_ms}→${exp.median.LCP_ms} (${lcpDelta}%)`.padStart(12)} ${`${ctrl.median.TBT_ms}→${exp.median.TBT_ms} (${tbtDelta})`.padStart(12)} ${clsDelta.padStart(12)} ${`${ctrl.median.SI_ms}→${exp.median.SI_ms} (${siDelta}%)`.padStart(12)}`
-    );
-  }
+  // Print comparison table
+  printComparisonTable(allResults);
 
   console.log("\n" + "=".repeat(60));
   console.log(`  Results saved to: ${RESULTS_DIR}/`);

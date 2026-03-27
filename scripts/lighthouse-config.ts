@@ -1,52 +1,109 @@
 /**
  * Shared Lighthouse configuration for the Bolt dissertation.
  *
- * Throttling profile: Simulated "Fast 3G" on a Moto G4-class device.
- * This matches the test conditions described in Section 3.4 of the
- * dissertation methodology.
+ * Supports 4 stages (Control, Image Opt, RSC, Full) across 3 network
+ * profiles (Slow 3G, Fast 3G, 4G). This matches the test conditions
+ * described in Section 3.4 of the dissertation methodology.
  */
 
-// All 16 testable URLs across both groups
-export const TEST_URLS = {
-  control: [
-    { path: "/control/legacy", label: "Homepage" },
-    { path: "/control/legacy/category/running", label: "Category/Running" },
-    { path: "/control/legacy/category/training", label: "Category/Training" },
-    { path: "/control/legacy/category/lifestyle", label: "Category/Lifestyle" },
-    {
-      path: "/control/legacy/category/basketball",
-      label: "Category/Basketball",
+// ─── Page definitions (shared across all stages) ─────────────────
+const PAGES = [
+  { slug: "", label: "Homepage" },
+  { slug: "/category/running", label: "Category/Running" },
+  { slug: "/category/training", label: "Category/Training" },
+  { slug: "/category/lifestyle", label: "Category/Lifestyle" },
+  { slug: "/category/basketball", label: "Category/Basketball" },
+  { slug: "/category/football", label: "Category/Football" },
+  { slug: "/cart", label: "Cart" },
+  { slug: "/product/25", label: "Product Detail" },
+] as const;
+
+// ─── Stage definitions ───────────────────────────────────────────
+export const STAGES = {
+  control: {
+    name: "Control (Legacy CSR)",
+    basePath: "/control/legacy",
+    color: "\x1b[31m", // red
+  },
+  "image-opt": {
+    name: "Stage A (Image Optimised)",
+    basePath: "/experimental/image-opt",
+    color: "\x1b[33m", // yellow/orange
+  },
+  rsc: {
+    name: "Stage B (Server Components)",
+    basePath: "/experimental/rsc",
+    color: "\x1b[34m", // blue
+  },
+  modern: {
+    name: "Stage C (Fully Optimised)",
+    basePath: "/experimental/modern",
+    color: "\x1b[32m", // green
+  },
+} as const;
+
+export type StageName = keyof typeof STAGES;
+export const ALL_STAGES: StageName[] = ["control", "image-opt", "rsc", "modern"];
+
+// Build URLs for a given stage
+export function getStageURLs(stage: StageName) {
+  const { basePath } = STAGES[stage];
+  return PAGES.map((page) => ({
+    path: `${basePath}${page.slug}`,
+    label: page.label,
+  }));
+}
+
+// ─── Network profiles ────────────────────────────────────────────
+export const NETWORK_PROFILES = {
+  none: {
+    name: "No Throttling",
+    throttling: {
+      rttMs: 0,
+      throughputKbps: 0,
+      uploadThroughputKbps: 0,
+      cpuSlowdownMultiplier: 1,
+      requestLatencyMs: 0,
+      downloadThroughputKbps: 0,
     },
-    { path: "/control/legacy/category/football", label: "Category/Football" },
-    { path: "/control/legacy/cart", label: "Cart" },
-    { path: "/control/legacy/product/1", label: "Product Detail" },
-  ],
-  experimental: [
-    { path: "/experimental/modern", label: "Homepage" },
-    {
-      path: "/experimental/modern/category/running",
-      label: "Category/Running",
+  },
+  "4g": {
+    name: "4G",
+    throttling: {
+      rttMs: 170,
+      throughputKbps: 9000,
+      uploadThroughputKbps: 9000,
+      cpuSlowdownMultiplier: 4,
+      requestLatencyMs: 0,
+      downloadThroughputKbps: 0,
     },
-    {
-      path: "/experimental/modern/category/training",
-      label: "Category/Training",
+  },
+  fast3g: {
+    name: "Fast 3G",
+    throttling: {
+      rttMs: 150,
+      throughputKbps: 1638.4,
+      uploadThroughputKbps: 675,
+      cpuSlowdownMultiplier: 4,
+      requestLatencyMs: 0,
+      downloadThroughputKbps: 0,
     },
-    {
-      path: "/experimental/modern/category/lifestyle",
-      label: "Category/Lifestyle",
+  },
+  slow3g: {
+    name: "Slow 3G",
+    throttling: {
+      rttMs: 400,
+      throughputKbps: 400,
+      uploadThroughputKbps: 400,
+      cpuSlowdownMultiplier: 4,
+      requestLatencyMs: 0,
+      downloadThroughputKbps: 0,
     },
-    {
-      path: "/experimental/modern/category/basketball",
-      label: "Category/Basketball",
-    },
-    {
-      path: "/experimental/modern/category/football",
-      label: "Category/Football",
-    },
-    { path: "/experimental/modern/cart", label: "Cart" },
-    { path: "/experimental/modern/product/1", label: "Product Detail" },
-  ],
-};
+  },
+} as const;
+
+export type NetworkProfile = keyof typeof NETWORK_PROFILES;
+export const ALL_PROFILES: NetworkProfile[] = ["none", "4g", "fast3g", "slow3g"];
 
 // Metrics to extract from each Lighthouse run
 export const METRICS = [
@@ -58,26 +115,28 @@ export const METRICS = [
 ] as const;
 
 // Lighthouse flags — performance-only, mobile, simulated throttling
-export const LIGHTHOUSE_FLAGS = {
-  logLevel: "error" as const,
-  output: "json" as const,
-  onlyCategories: ["performance"],
-  formFactor: "mobile" as const,
-  screenEmulation: {
-    mobile: true,
-    width: 360,
-    height: 640,
-    deviceScaleFactor: 2.625,
-    disabled: false,
-  },
-  // Simulated Fast 3G throttling (Lighthouse default for mobile)
-  throttlingMethod: "simulate" as const,
-  throttling: {
-    rttMs: 150, // Round trip time
-    throughputKbps: 1638.4, // ~1.6 Mbps download
-    uploadThroughputKbps: 675, // ~675 Kbps upload
-    cpuSlowdownMultiplier: 4, // 4x CPU slowdown (Moto G4-class)
-    requestLatencyMs: 0,
-    downloadThroughputKbps: 0,
-  },
+export function getLighthouseFlags(profile: NetworkProfile) {
+  return {
+    logLevel: "error" as const,
+    output: "json" as const,
+    onlyCategories: ["performance"],
+    formFactor: "mobile" as const,
+    screenEmulation: {
+      mobile: true,
+      width: 360,
+      height: 640,
+      deviceScaleFactor: 2.625,
+      disabled: false,
+    },
+    throttlingMethod: "simulate" as const,
+    throttling: NETWORK_PROFILES[profile].throttling,
+  };
+}
+
+// Legacy export for backwards compatibility
+export const TEST_URLS = {
+  control: getStageURLs("control"),
+  experimental: getStageURLs("modern"),
 };
+
+export const LIGHTHOUSE_FLAGS = getLighthouseFlags("fast3g");
