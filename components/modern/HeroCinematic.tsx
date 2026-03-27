@@ -1,19 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
+import blurCache from "@/lib/blur-cache.json";
+
+const HERO_URL =
+  "https://images.unsplash.com/photo-1556906781-9a412961c28c?q=100&w=3000&auto=format&fit=crop";
 
 export default function HeroCinematic() {
+  const blurDataURL = (blurCache as Record<string, string>)[HERO_URL];
+
   return (
     <section className="relative w-full h-[70vh] min-h-[600px] flex items-center justify-center overflow-hidden mb-16">
       {/* BACKGROUND IMAGE: Heavily optimized for LCP */}
       <div className="absolute inset-0 z-0 bg-black">
         <Image
-          src="https://images.unsplash.com/photo-1556906781-9a412961c28c?q=100&w=3000&auto=format&fit=crop"
+          src={HERO_URL}
           alt="Athlete running on a track"
           fill
           priority // CRITICAL: Tells Next.js this is the LCP element
           fetchPriority="high" // CRITICAL: Instructs the browser to fetch this before anything else
           sizes="100vw"
-          className="object-cover opacity-60" 
+          quality={60}
+          placeholder={blurDataURL ? "blur" : "empty"}
+          blurDataURL={blurDataURL || undefined}
+          className="object-cover opacity-60"
         />
       </div>
 
@@ -26,14 +35,14 @@ export default function HeroCinematic() {
           Engineered for zero latency. Designed for peak performance. Discover the next generation of athletic footwear.
         </p>
         <div className="flex gap-4">
-          <Link 
-            href="#shop" 
+          <Link
+            href="#shop"
             className="bg-white text-black font-bold py-4 px-8 rounded-full hover:bg-gray-200 transition-transform hover:scale-105"
           >
             Shop Collection
           </Link>
-          <Link 
-            href="#new-arrivals" 
+          <Link
+            href="#new-arrivals"
             className="bg-transparent border-2 border-white text-white font-bold py-4 px-8 rounded-full hover:bg-white hover:text-black transition-colors"
           >
             New Arrivals

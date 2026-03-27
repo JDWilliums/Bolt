@@ -6,20 +6,37 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "benchmark": "tsx scripts/benchmark.ts",
+    "benchmark:quick": "tsx scripts/benchmark.ts --iterations 3",
+    "benchmark:vercel": "tsx scripts/benchmark.ts --base https://bolt.codebyjack.dev",
+    "seed": "tsx db/seed.ts",
+    "generate-blurs": "tsx scripts/generate-blurs.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "chrome-launcher": "^1.2.1",
     "drizzle-orm": "^0.45.1",
+    "lighthouse": "^12.8.2",
     "next": "16.2.1",
+    "plaiceholder": "^3.0.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sharp": "^0.34.5",
+    "styled-components": "^6.3.12"
   },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/styled-components": "^5.1.36",
     "dotenv": "^17.3.1",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",

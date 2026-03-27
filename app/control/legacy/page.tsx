@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { addToLocalStorageCart } from "@/lib/cart";
 
 interface Product {
   id: number;
@@ -58,6 +59,7 @@ export default function LegacyStorefront() {
   const handleAddToCart = async (id: number) => {
     setAddingToCart(id);
     await new Promise((resolve) => setTimeout(resolve, 800));
+    addToLocalStorageCart(id);
     alert("Added to cart!");
     setAddingToCart(null);
   };

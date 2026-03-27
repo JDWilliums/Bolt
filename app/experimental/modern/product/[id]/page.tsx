@@ -8,6 +8,9 @@ import { Suspense } from "react";
 import LiveStock from "@/components/modern/LiveStock";
 import AddToCartButton from "@/components/modern/AddToCartButton";
 import { unstable_cache } from "next/cache";
+import blurCache from "@/lib/blur-cache.json";
+
+const blurMap = blurCache as Record<string, string>;
 
 // Pre-generate all product pages at build time (SSG).
 // When a user hovers a product card, the browser prefetches
@@ -46,7 +49,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       </Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-        {/* PRODUCT IMAGE — optimised via next/image */}
+        {/* PRODUCT IMAGE — optimised via next/image with blur placeholder */}
         <div className="bg-neutral-100 rounded-2xl overflow-hidden relative aspect-square">
           <Image
             src={product.imageUrl}
@@ -54,6 +57,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
+            quality={60}
+            placeholder={blurMap[product.imageUrl] ? "blur" : "empty"}
+            blurDataURL={blurMap[product.imageUrl] || undefined}
             className="object-cover"
           />
         </div>

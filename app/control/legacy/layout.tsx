@@ -1,5 +1,6 @@
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import StyledComponentsRegistry from "@/lib/StyledComponentsRegistry";
 
 export const metadata = {
   title: "Bolt Store — Control (Legacy CSR)",
@@ -9,6 +10,18 @@ export default function ControlLayout({ children }: { children: React.ReactNode 
   return (
     <>
       <Navbar basePath="/control/legacy" />
+
+      {/*
+        ANTI-PATTERN: RENDER-BLOCKING EXTERNAL FONT
+        This <link> forces the browser to make a cross-origin DNS lookup,
+        TCP connection, and download of the Google Fonts CSS + font files
+        before it can render text — delaying FCP and LCP.
+        The experimental group uses next/font which self-hosts and preloads.
+      */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap"
+        rel="stylesheet"
+      />
 
       {/*
         BLOCKING THIRD-PARTY SCRIPT SIMULATION
@@ -28,7 +41,16 @@ export default function ControlLayout({ children }: { children: React.ReactNode 
         }}
       />
 
-      <div className="flex-1">{children}</div>
+      {/*
+        ANTI-PATTERN: CSS-IN-JS RUNTIME OVERHEAD
+        StyledComponentsRegistry wraps children so styled-components can
+        inject <style> tags at runtime, adding to Total Blocking Time.
+      */}
+      <StyledComponentsRegistry>
+        <div className="flex-1" style={{ fontFamily: "'Inter', sans-serif" }}>
+          {children}
+        </div>
+      </StyledComponentsRegistry>
       <Footer />
     </>
   );

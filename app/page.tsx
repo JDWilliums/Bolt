@@ -25,12 +25,14 @@ export default function LandingPage() {
           </div>
           <h2 className="text-2xl font-bold mb-3">Legacy CSR</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
-            <li>• Client-side data fetching (useEffect)</li>
-            <li>• Unoptimised images (&lt;img&gt;)</li>
-            <li>• No dimension attributes (CLS)</li>
-            <li>• Blocking third-party script</li>
+            <li>• Client-side data fetching (useEffect waterfall)</li>
+            <li>• Unoptimised images (&lt;img&gt;, no dimensions)</li>
+            <li>• CSS-in-JS runtime overhead (styled-components)</li>
+            <li>• Render-blocking Google Fonts</li>
+            <li>• Blocking third-party script (200ms)</li>
             <li>• Pessimistic UI (loading spinners)</li>
-            <li>• Full JS bundle shipped to client</li>
+            <li>• Client-side sorting (main thread blocking)</li>
+            <li>• localStorage cart with sequential fetches</li>
           </ul>
           <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
             Open Control Store &rarr;
@@ -47,12 +49,15 @@ export default function LandingPage() {
           </div>
           <h2 className="text-2xl font-bold mb-3">Optimised RSC</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
-            <li>• React Server Components</li>
-            <li>• Streaming with Suspense</li>
-            <li>• next/image (AVIF, lazy, blur-up)</li>
+            <li>• React Server Components (zero client JS)</li>
+            <li>• Streaming with Suspense boundaries</li>
+            <li>• next/image (AVIF, lazy, blur-up placeholders)</li>
+            <li>• Self-hosted fonts via next/font</li>
             <li>• Optimistic UI (useOptimistic)</li>
-            <li>• Link prefetching</li>
-            <li>• Partial Prerendering</li>
+            <li>• Link prefetching + SSG category pages</li>
+            <li>• Partial Prerendering (static shell + dynamic stream)</li>
+            <li>• Server-side sorting (DB ORDER BY)</li>
+            <li>• Cookie-based cart with batched DB query</li>
           </ul>
           <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
             Open Optimised Store &rarr;

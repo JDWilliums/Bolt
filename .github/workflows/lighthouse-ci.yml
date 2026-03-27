@@ -1,0 +1,49 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  lighthouse:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Lighthouse benchmark (3 iterations)
+        run: npx tsx scripts/benchmark.ts --iterations 3 --base https://bolt.codebyjack.dev
+        env:
+          CHROME_FLAGS: "--no-sandbox --headless --disable-gpu"
+
+      - name: Upload raw Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports-${{ github.sha }}
+          path: results/
+          retention-days: 90
+
+      - name: Print comparison summary
+        if: always()
+        run: |
+          echo "## Lighthouse Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f results/comparison.csv ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat results/comparison.csv | column -t -s ',' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Full reports available in the workflow artifacts." >> $GITHUB_STEP_SUMMARY

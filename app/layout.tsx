@@ -24,6 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        {/* Note: no preconnect to images.unsplash.com needed — next/image
+            proxies all requests through /_next/image on the same origin,
+            so the browser never connects directly to Unsplash. */}
+      </head>
       <body className="min-h-screen flex flex-col antialiased">{children}</body>
     </html>
   );

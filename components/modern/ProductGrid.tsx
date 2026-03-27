@@ -4,6 +4,9 @@ import { eq } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
 import AddToCartButton from "./AddToCartButton";
+import blurCache from "@/lib/blur-cache.json";
+
+const blurMap = blurCache as Record<string, string>;
 
 export default async function ProductGrid({ category }: { category?: string }) {
   // Server-side filtering: the WHERE clause runs on the database,
@@ -14,41 +17,48 @@ export default async function ProductGrid({ category }: { category?: string }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {data.map((product, index) => (
-        <div key={product.id} className="group flex flex-col">
-          <Link
-            href={`/experimental/modern/product/${product.id}`}
-            prefetch={true}
-            className="block mb-3"
-          >
-            <div className="bg-neutral-100 overflow-hidden rounded-lg relative aspect-square">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                priority={index < 4}
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-          </Link>
+      {data.map((product, index) => {
+        const blurDataURL = blurMap[product.imageUrl];
 
-          <div className="flex flex-col flex-grow">
+        return (
+          <div key={product.id} className="group flex flex-col">
             <Link
               href={`/experimental/modern/product/${product.id}`}
               prefetch={true}
-              className="hover:underline"
+              className="block mb-3"
             >
-              <h3 className="font-bold text-base">{product.name}</h3>
+              <div className="bg-neutral-100 overflow-hidden rounded-lg relative aspect-square">
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) calc(100vw - 32px), (max-width: 1200px) calc(50vw - 48px), calc(25vw - 48px)"
+                  priority={index < 4}
+                  quality={60}
+                  placeholder={blurDataURL ? "blur" : "empty"}
+                  blurDataURL={blurDataURL || undefined}
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
             </Link>
-            <p className="text-sm text-neutral-500 mb-1">{product.category}</p>
-            <p className="font-bold text-base mb-3">£{(product.price / 100).toFixed(2)}</p>
-            <div className="mt-auto">
-              <AddToCartButton productId={product.id} />
+
+            <div className="flex flex-col flex-grow">
+              <Link
+                href={`/experimental/modern/product/${product.id}`}
+                prefetch={true}
+                className="hover:underline"
+              >
+                <h3 className="font-bold text-base">{product.name}</h3>
+              </Link>
+              <p className="text-sm text-neutral-500 mb-1">{product.category}</p>
+              <p className="font-bold text-base mb-3">£{(product.price / 100).toFixed(2)}</p>
+              <div className="mt-auto">
+                <AddToCartButton productId={product.id} />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

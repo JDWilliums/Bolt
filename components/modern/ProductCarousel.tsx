@@ -31,12 +31,13 @@ export default async function ProductCarousel() {
             </Link>
             
             <div className="relative w-full aspect-[4/5] bg-gray-100 mb-4 overflow-hidden rounded-lg">
-              <Image 
-                src={product.imageUrl} 
+              <Image
+                src={product.imageUrl}
                 alt={product.name}
                 fill
-                sizes="(max-width: 768px) 280px, 350px"
-                className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                sizes="280px"
+                quality={60}
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute top-2 left-2 bg-white text-black text-xs font-bold px-3 py-1 uppercase tracking-wider rounded">
                 Just Dropped

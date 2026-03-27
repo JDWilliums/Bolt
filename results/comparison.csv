@@ -1,0 +1,9 @@
+Page,Control_FCP_ms,Experimental_FCP_ms,Delta_FCP_ms,Control_LCP_ms,Experimental_LCP_ms,Delta_LCP_ms,Control_TBT_ms,Experimental_TBT_ms,Delta_TBT_ms,Control_CLS,Experimental_CLS,Delta_CLS,Control_SI_ms,Experimental_SI_ms,Delta_SI_ms,Control_TTFB_ms,Experimental_TTFB_ms,Delta_TTFB_ms,Control_JS_KB,Experimental_JS_KB,Delta_JS_KB,Control_PageWeight_KB,Experimental_PageWeight_KB,Delta_PageWeight_KB
+Homepage,1381,1061,-23%,16857,3167,-81%,607,70,-88%,0.069,0,-100%,3320,1299,-61%,3,4,33%,167,163,-2%,152622,729,-100%
+Category/Running,1380,909,-34%,12655,2997,-76%,819,43,-95%,0.069,0,-100%,2761,1127,-59%,3,4,33%,170,176,4%,30827,621,-98%
+Category/Training,1378,908,-34%,13544,2990,-78%,127,39,-69%,0.069,0,-100%,2885,1132,-61%,3,3,0%,170,176,4%,35833,697,-98%
+Category/Lifestyle,1377,907,-34%,16851,3018,-82%,148,54,-64%,0.069,0,-100%,3609,1059,-71%,3,3,0%,170,176,4%,35730,612,-98%
+Category/Basketball,758,908,20%,16694,2845,-83%,881,42,-95%,0.069,0,-100%,3851,908,-76%,3,2,-33%,170,176,4%,22205,511,-98%
+Category/Football,1378,908,-34%,17747,2988,-83%,703,46,-93%,0.069,0,-100%,2821,908,-68%,3,3,0%,170,176,4%,40889,678,-98%
+Cart,1378,759,-45%,3132,1961,-37%,76,40,-47%,0.04,0,-100%,1378,759,-45%,3,3,0%,167,163,-2%,320,301,-6%
+Product Detail,1382,758,-45%,3194,2629,-18%,134,42,-69%,0,0,N/A,1382,758,-45%,3,3,0%,169,169,0%,325,362,11%

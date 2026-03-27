@@ -1,0 +1,17 @@
+URL,Group,Label,FCP_ms,LCP_ms,TBT_ms,CLS,SI_ms,TTFB_ms,JS_KB,PageWeight_KB
+/control/legacy,control,Homepage,1381,16857,607,0.069,3320,3,167,152622
+/control/legacy/category/running,control,Category/Running,1380,12655,819,0.069,2761,3,170,30827
+/control/legacy/category/training,control,Category/Training,1378,13544,127,0.069,2885,3,170,35833
+/control/legacy/category/lifestyle,control,Category/Lifestyle,1377,16851,148,0.069,3609,3,170,35730
+/control/legacy/category/basketball,control,Category/Basketball,758,16694,881,0.069,3851,3,170,22205
+/control/legacy/category/football,control,Category/Football,1378,17747,703,0.069,2821,3,170,40889
+/control/legacy/cart,control,Cart,1378,3132,76,0.04,1378,3,167,320
+/control/legacy/product/1,control,Product Detail,1382,3194,134,0,1382,3,169,325
+/experimental/modern,experimental,Homepage,1061,3167,70,0,1299,4,163,729
+/experimental/modern/category/running,experimental,Category/Running,909,2997,43,0,1127,4,176,621
+/experimental/modern/category/training,experimental,Category/Training,908,2990,39,0,1132,3,176,697
+/experimental/modern/category/lifestyle,experimental,Category/Lifestyle,907,3018,54,0,1059,3,176,612
+/experimental/modern/category/basketball,experimental,Category/Basketball,908,2845,42,0,908,2,176,511
+/experimental/modern/category/football,experimental,Category/Football,908,2988,46,0,908,3,176,678
+/experimental/modern/cart,experimental,Cart,759,1961,40,0,759,3,163,301
+/experimental/modern/product/1,experimental,Product Detail,758,2629,42,0,758,3,169,362
