@@ -40,10 +40,15 @@ export const STAGES = {
     basePath: "/experimental/modern",
     color: "\x1b[32m", // green
   },
+  nodelay: {
+    name: "Stage D (No Delay)",
+    basePath: "/experimental/nodelay",
+    color: "\x1b[35m", // magenta
+  },
 } as const;
 
 export type StageName = keyof typeof STAGES;
-export const ALL_STAGES: StageName[] = ["control", "image-opt", "rsc", "modern"];
+export const ALL_STAGES: StageName[] = ["control", "image-opt", "rsc", "modern", "nodelay"];
 
 // Build URLs for a given stage
 export function getStageURLs(stage: StageName) {

@@ -74,7 +74,7 @@ export const GALLERY_IMAGES = [
   { url: "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=800&auto=format&fit=crop", alt: "Runner at sunset" },
   { url: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&auto=format&fit=crop", alt: "Trail running in mountains" },
   { url: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&auto=format&fit=crop", alt: "Marathon finish line" },
-  { url: "https://images.unsplash.com/photo-1461896836934-bd45ba07d847?w=800&auto=format&fit=crop", alt: "Running shoes close-up" },
+  { url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop", alt: "Running shoes close-up" },
   { url: "https://images.unsplash.com/photo-1594882645126-14020914d58d?w=800&auto=format&fit=crop", alt: "Morning jog in the park" },
   { url: "https://images.unsplash.com/photo-1590333748338-d629e4564ad9?w=800&auto=format&fit=crop", alt: "Cross country running" },
 ];

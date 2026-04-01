@@ -189,7 +189,8 @@ export default function ImageOptCartView() {
   // ANTI-PATTERN: PESSIMISTIC QUANTITY UPDATE (kept from control)
   const handleQuantityChange = async (productId: number, delta: number) => {
     setUpdating(productId);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 500));
     const newCart = updateLocalStorageQuantity(productId, delta);
     const updated: CartProduct[] = [];
     for (const item of newCart) {
@@ -204,7 +205,8 @@ export default function ImageOptCartView() {
 
   const handleRemove = async (productId: number) => {
     setUpdating(productId);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 300));
     removeFromLocalStorageCart(productId);
     setCartProducts((prev) => prev.filter((item) => item.productId !== productId));
     setUpdating(null);
@@ -212,7 +214,8 @@ export default function ImageOptCartView() {
 
   const handleCheckout = async () => {
     setCheckingOut(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     localStorage.removeItem("bolt-cart");
     alert("Order placed! Thank you for your purchase.");
     setCartProducts([]);

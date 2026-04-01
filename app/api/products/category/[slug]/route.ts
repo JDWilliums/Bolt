@@ -20,7 +20,8 @@ export async function GET(
     }
 
     // Artificial delay (500ms) to simulate a slow legacy backend
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
     const categoryProducts = await db
       .select()

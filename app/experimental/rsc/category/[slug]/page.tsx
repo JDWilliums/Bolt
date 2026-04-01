@@ -165,7 +165,7 @@ async function CategoryContent({
                             src={product.imageUrl}
                             alt={product.name}
                             fill
-                            sizes="(max-width: 768px) calc(33vw - 16px), (max-width: 1200px) calc(25vw - 16px), calc(16.67vw - 16px)"
+                            sizes="(max-width: 768px) 33vw, (max-width: 1200px) 25vw, 17vw"
                             priority={index < 6}
                             quality={60}
                             placeholder={blur ? "blur" : "empty"}
@@ -200,7 +200,7 @@ async function CategoryContent({
                             src={product.imageUrl}
                             alt={product.name}
                             fill
-                            sizes="(max-width: 768px) calc(100vw - 32px), (max-width: 1200px) calc(50vw - 48px), calc(25vw - 48px)"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                             priority={index < 4}
                             quality={60}
                             placeholder={blur ? "blur" : "empty"}

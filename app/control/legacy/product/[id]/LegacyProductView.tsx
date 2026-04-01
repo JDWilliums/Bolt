@@ -45,7 +45,8 @@ export default function LegacyProductView() {
     }
     setAddingToCart(true);
     // PESSIMISTIC UI: Block for 800ms while "server processes"
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 800));
     alert(`Added ${product?.name} (${selectedSize}) to cart!`);
     setAddingToCart(false);
   };

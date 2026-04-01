@@ -13,10 +13,10 @@
  * affects at most 1 run per URL, not an entire batch.
  *
  * Usage:
- *   npm run benchmark                          # 10 iterations, all stages, fast3g
- *   npm run benchmark:fast                     # 1 iteration per URL, all stages, fast3g
- *   npm run benchmark:quick                    # 3 iterations, all stages, fast3g
- *   npm run benchmark:all                      # 10 iterations, all stages, ALL network profiles
+ *   npm run benchmark                          # 10 iterations, all stages, ALL network profiles
+ *   npm run benchmark:fast                     # 1 iteration per URL, all stages, all profiles
+ *   npm run benchmark:quick                    # 3 iterations, all stages, all profiles
+ *   npm run benchmark:nodelay                  # all profiles, no artificial delays (needs build:nodelay first)
  *
  *   # Custom:
  *   npm run benchmark -- --iterations 5
@@ -62,7 +62,7 @@ function parseStages(): StageName[] {
 
 // Parse --profile flag
 function parseProfiles(): NetworkProfile[] {
-  const profileArg = getArg("profile", "fast3g");
+  const profileArg = getArg("profile", "all");
   if (profileArg === "all") return [...ALL_PROFILES];
   return profileArg.split(",").map((p) => p.trim() as NetworkProfile);
 }

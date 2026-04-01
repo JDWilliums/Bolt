@@ -1,6 +1,7 @@
 "use client";
 
 import { useOptimistic, startTransition } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { updateCartQuantity, removeFromCart } from "@/app/actions";
 
@@ -34,6 +35,7 @@ export default function CartItems({
   /** Index of the item that is the likely LCP element (first visible) */
   lcpIndex?: number;
 }) {
+  const nodelay = usePathname().startsWith("/experimental/nodelay");
   const [optimisticItems, addOptimisticAction] = useOptimistic(
     initialItems,
     (state: CartItemData[], action: OptimisticAction) => {
@@ -52,14 +54,14 @@ export default function CartItems({
   const handleQuantityChange = (productId: number, delta: number) => {
     startTransition(() => {
       addOptimisticAction({ type: "update", productId, delta });
-      updateCartQuantity(productId, delta);
+      updateCartQuantity(productId, delta, nodelay);
     });
   };
 
   const handleRemove = (productId: number) => {
     startTransition(() => {
       addOptimisticAction({ type: "remove", productId });
-      removeFromCart(productId);
+      removeFromCart(productId, nodelay);
     });
   };
 

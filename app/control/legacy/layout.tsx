@@ -29,17 +29,19 @@ export default function ControlLayout({ children }: { children: React.ReactNode 
         simulating the cost of loading analytics, chat widgets, or consent
         managers synchronously — a common anti-pattern in production sites.
       */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              var start = Date.now();
-              while (Date.now() - start < 200) {} // Block main thread for 200ms
-              console.log('[Bolt Control] Blocking script executed — simulated 200ms of third-party overhead');
-            })();
-          `,
-        }}
-      />
+      {process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false" && (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var start = Date.now();
+                while (Date.now() - start < 200) {} // Block main thread for 200ms
+                console.log('[Bolt Control] Blocking script executed — simulated 200ms of third-party overhead');
+              })();
+            `,
+          }}
+        />
+      )}
 
       {/*
         ANTI-PATTERN: CSS-IN-JS RUNTIME OVERHEAD

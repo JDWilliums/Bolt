@@ -21,12 +21,6 @@ import blurCache from "@/lib/blur-cache.json";
 
 const blurMap = blurCache as Record<string, string>;
 
-// ──────────────────────────────────────────────────────────────────
-// OPTIMISATION: STATIC SITE GENERATION (SSG)
-// Pre-generate all 5 category pages at build time. Combined with
-// <Link prefetch>, the browser prefetches the full static shell
-// when the user hovers a category link — resulting in 0ms TTFB.
-// ──────────────────────────────────────────────────────────────────
 export async function generateStaticParams() {
   return CATEGORY_SLUGS.map((slug) => ({ slug }));
 }
@@ -41,7 +35,7 @@ export async function generateMetadata({
   return { title: `${displayName || "Category"} — Bolt Store` };
 }
 
-export default async function ModernCategoryPage({
+export default async function NoDelayCategoryPage({
   params,
   searchParams,
 }: {
@@ -58,13 +52,10 @@ export default async function ModernCategoryPage({
   if (!displayName || !hero) return notFound();
 
   const heroBlur = blurMap[hero.url];
-
-  // Determine container max-width
   const containerMaxW = archetype === "minimal" ? "max-w-[1000px]" : "max-w-[1600px]";
 
   return (
     <main className="min-h-screen bg-white">
-      {/* ─── HERO BANNER (STATIC SHELL) ───────────────────────── */}
       <section className="relative w-full h-[60vh] min-h-[450px] overflow-hidden mb-12">
         <div className="absolute inset-0 bg-black">
           <Image
@@ -92,7 +83,6 @@ export default async function ModernCategoryPage({
       </section>
 
       <div className={`${containerMaxW} mx-auto px-4 md:px-8`}>
-        {/* ─── HEADER + SORT ──────────────────────────────────── */}
         {archetype !== "minimal" && (
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -118,7 +108,6 @@ export default async function ModernCategoryPage({
           </div>
         )}
 
-        {/* ─── PRODUCT GRID (DYNAMIC — streams via Suspense) ──── */}
         <section className={archetype === "minimal" ? "pb-24 px-4" : "pb-24"}>
           <Suspense fallback={<GridSkeleton archetype={archetype} />}>
             <CategoryGrid
@@ -129,7 +118,6 @@ export default async function ModernCategoryPage({
           </Suspense>
         </section>
 
-        {/* ─── IMAGE-HEAVY: Style Inspiration Gallery ─────────── */}
         {archetype === "image-heavy" && (
           <section className="pb-24 px-4 md:px-8">
             <h2 className="text-3xl font-extrabold tracking-tight mb-8">
@@ -157,7 +145,6 @@ export default async function ModernCategoryPage({
           </section>
         )}
 
-        {/* ─── TEXT-HEAVY: Training Shoe Guide ────────────────── */}
         {archetype === "text-heavy" && (
           <>
             <section className="pb-12 px-4 md:px-8 max-w-[900px] mx-auto">
@@ -228,11 +215,6 @@ export default async function ModernCategoryPage({
   );
 }
 
-// ──────────────────────────────────────────────────────────────────
-// Server Component: Fetches and renders the product grid.
-// searchParams is awaited INSIDE the Suspense boundary so the
-// static shell can render without blocking on dynamic data.
-// ──────────────────────────────────────────────────────────────────
 async function CategoryGrid({
   category,
   archetype,
@@ -253,11 +235,8 @@ async function CategoryGrid({
   }
 
   const data = await query;
-
-  // For minimal archetype, only show first 4 products
   const displayProducts = archetype === "minimal" ? data.slice(0, 4) : data;
 
-  // Determine grid classes based on archetype
   const gridClasses =
     archetype === "thumbnail-grid"
       ? "grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
@@ -265,7 +244,6 @@ async function CategoryGrid({
         ? "grid grid-cols-1 md:grid-cols-2 gap-8"
         : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6";
 
-  // Determine aspect ratio for product images
   const imageAspect =
     archetype === "image-heavy"
       ? "aspect-[3/4]"
@@ -283,7 +261,7 @@ async function CategoryGrid({
               return (
                 <div key={product.id} className="group flex flex-col">
                   <Link
-                    href={`/experimental/modern/product/${product.id}`}
+                    href={`/experimental/nodelay/product/${product.id}`}
                     prefetch={true}
                     className="block mb-2"
                   >
@@ -318,7 +296,7 @@ async function CategoryGrid({
               return (
                 <div key={product.id} className="group flex flex-col">
                   <Link
-                    href={`/experimental/modern/product/${product.id}`}
+                    href={`/experimental/nodelay/product/${product.id}`}
                     prefetch={true}
                     className="block mb-3"
                   >
@@ -339,7 +317,7 @@ async function CategoryGrid({
 
                   <div className="flex flex-col flex-grow">
                     <Link
-                      href={`/experimental/modern/product/${product.id}`}
+                      href={`/experimental/nodelay/product/${product.id}`}
                       prefetch={true}
                       className="hover:underline"
                     >

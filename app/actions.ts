@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+const SIMULATE_DELAY = process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false";
+
 export interface CartItem {
   productId: number;
   quantity: number;
@@ -39,8 +41,8 @@ async function writeCart(cart: CartItem[]) {
 // group uses useOptimistic to show success instantly while this
 // runs in the background. The control group blocks the UI.
 // ──────────────────────────────────────────────────────────────────
-export async function addToCartAction(productId: number) {
-  await new Promise((resolve) => setTimeout(resolve, 800));
+export async function addToCartAction(productId: number, nodelay = false) {
+  if (SIMULATE_DELAY && !nodelay) await new Promise((resolve) => setTimeout(resolve, 800));
 
   const cart = await readCart();
   const existing = cart.find((item) => item.productId === productId);
@@ -64,8 +66,8 @@ export async function getCart(): Promise<CartItem[]> {
 // ──────────────────────────────────────────────────────────────────
 // UPDATE QUANTITY — increment or decrement an item's quantity
 // ──────────────────────────────────────────────────────────────────
-export async function updateCartQuantity(productId: number, delta: number) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+export async function updateCartQuantity(productId: number, delta: number, nodelay = false) {
+  if (SIMULATE_DELAY && !nodelay) await new Promise((resolve) => setTimeout(resolve, 500));
 
   let cart = await readCart();
   const existing = cart.find((item) => item.productId === productId);
@@ -81,8 +83,8 @@ export async function updateCartQuantity(productId: number, delta: number) {
 // ──────────────────────────────────────────────────────────────────
 // REMOVE FROM CART
 // ──────────────────────────────────────────────────────────────────
-export async function removeFromCart(productId: number) {
-  await new Promise((resolve) => setTimeout(resolve, 300));
+export async function removeFromCart(productId: number, nodelay = false) {
+  if (SIMULATE_DELAY && !nodelay) await new Promise((resolve) => setTimeout(resolve, 300));
 
   const cart = (await readCart()).filter(
     (item) => item.productId !== productId

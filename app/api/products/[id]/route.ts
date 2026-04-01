@@ -11,7 +11,8 @@ export async function GET(
     const { id } = await params;
 
     // Artificial 300ms delay — simulates a slow legacy backend
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
     const result = await db
       .select()

@@ -24,10 +24,12 @@ export default function LandingPage() {
           <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full font-bold">+ RSC</span>
           <span className="text-neutral-700">→</span>
           <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold">+ PPR</span>
+          <span className="text-neutral-700">→</span>
+          <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full font-bold">No Delay</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
         {/* ─── CONTROL ─────────────────────────────────────────── */}
         <Link
           href="/control/legacy"
@@ -123,11 +125,35 @@ export default function LandingPage() {
             Open Fully-Optimised Store &rarr;
           </div>
         </Link>
+
+        {/* ─── STAGE D: NO DELAY ──────────────────────────────── */}
+        <Link
+          href="/experimental/nodelay"
+          className="group border border-neutral-800 rounded-2xl p-8 hover:border-purple-500 transition-all hover:bg-neutral-950"
+        >
+          <div className="text-xs font-bold uppercase tracking-widest text-purple-500 mb-3">
+            Stage D — No Delay
+          </div>
+          <h2 className="text-2xl font-bold mb-3">Zero Artificial Latency</h2>
+          <ul className="text-sm text-neutral-400 space-y-1.5">
+            <li>• <span className="text-purple-400">All simulated delays removed</span></li>
+            <li>• <span className="text-purple-400">No 800ms cart mutations</span></li>
+            <li>• <span className="text-purple-400">No 1.5s stock check delay</span></li>
+            <li>• <span className="text-purple-400">No API route latency simulation</span></li>
+            <li>• All Stage C optimisations (PPR, SSG, RSC)</li>
+            <li>• Isolates architecture vs simulated latency</li>
+            <li>• Closest to a real optimised production site</li>
+            <li>• Best-case Next.js performance baseline</li>
+          </ul>
+          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
+            Open No-Delay Store &rarr;
+          </div>
+        </Link>
       </div>
 
       {/* ─── BENCHMARK INFO ────────────────────────────────────── */}
       <div className="mt-12 text-center text-xs text-neutral-700 max-w-2xl">
-        <p>Each stage is benchmarked across Slow 3G, Fast 3G, and 4G network profiles.</p>
+        <p>Each stage is benchmarked across No Throttling, 4G, Fast 3G, and Slow 3G network profiles.</p>
         <p className="mt-1">Metrics: FCP, LCP, TBT, CLS, SI — 10 iterations per page, trimmed median.</p>
       </div>
     </main>

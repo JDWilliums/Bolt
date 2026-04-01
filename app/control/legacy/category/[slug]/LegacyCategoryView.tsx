@@ -221,7 +221,8 @@ export default function LegacyCategoryView() {
   // ──────────────────────────────────────────────────────────────
   const handleAddToCart = async (id: number) => {
     setAddingToCart(id);
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 800));
     addToLocalStorageCart(id);
     alert("Added to cart!");
     setAddingToCart(null);

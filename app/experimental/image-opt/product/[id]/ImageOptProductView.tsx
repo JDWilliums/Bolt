@@ -49,7 +49,8 @@ export default function ImageOptProductView() {
       return;
     }
     setAddingToCart(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 800));
     alert(`Added ${product?.name} (${selectedSize}) to cart!`);
     setAddingToCart(false);
   };

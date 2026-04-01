@@ -200,7 +200,8 @@ export default function LegacyCartView() {
   const handleQuantityChange = async (productId: number, delta: number) => {
     setUpdating(productId);
     // Simulate server round-trip for quantity update
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 500));
     const newCart = updateLocalStorageQuantity(productId, delta);
     // Re-fetch products for updated cart (triggers full re-render)
     const updated: CartProduct[] = [];
@@ -216,7 +217,8 @@ export default function LegacyCartView() {
 
   const handleRemove = async (productId: number) => {
     setUpdating(productId);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 300));
     removeFromLocalStorageCart(productId);
     setCartProducts((prev) => prev.filter((item) => item.productId !== productId));
     setUpdating(null);
@@ -225,7 +227,8 @@ export default function LegacyCartView() {
   const handleCheckout = async () => {
     setCheckingOut(true);
     // Simulate a very slow checkout process
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     localStorage.removeItem("bolt-cart");
     alert("Order placed! Thank you for your purchase.");
     setCartProducts([]);

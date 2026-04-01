@@ -14,6 +14,8 @@
     "benchmark:all:fast": "tsx scripts/benchmark.ts --profile all --iterations 1",
     "benchmark:all:quick": "tsx scripts/benchmark.ts --profile all --iterations 3",
     "benchmark:vercel": "tsx scripts/benchmark.ts --base https://bolt.codebyjack.dev",
+    "build:nodelay": "cross-env NEXT_PUBLIC_BOLT_SIMULATE_DELAY=false next build",
+    "benchmark:nodelay": "cross-env NEXT_PUBLIC_BOLT_SIMULATE_DELAY=false tsx scripts/benchmark.ts",
     "seed": "tsx db/seed.ts",
     "generate-blurs": "tsx scripts/generate-blurs.ts"
   },
@@ -41,6 +43,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/styled-components": "^5.1.36",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.3.1",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",

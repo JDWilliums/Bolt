@@ -8,7 +8,8 @@ export async function GET() {
     const allProducts = await db.select().from(products);
     
     // Artificial delay (500ms) to simulate a slow legacy backend/network
-    await new Promise((resolve) => setTimeout(resolve, 500)); 
+    if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
+      await new Promise((resolve) => setTimeout(resolve, 500));
     
     return NextResponse.json(allProducts);
   } catch (error) {

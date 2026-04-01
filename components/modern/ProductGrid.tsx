@@ -32,7 +32,7 @@ export default async function ProductGrid({ category }: { category?: string }) {
                   src={product.imageUrl}
                   alt={product.name}
                   fill
-                  sizes="(max-width: 768px) calc(100vw - 32px), (max-width: 1200px) calc(50vw - 48px), calc(25vw - 48px)"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   priority={index < 4}
                   quality={60}
                   placeholder={blurDataURL ? "blur" : "empty"}
