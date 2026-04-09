@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bolt — Performance A/B Test",
+  title: "Bolt Store | A Next.js Performance Case Study",
   description: "BSc Dissertation Artifact: Optimising Modern Web Application Performance via Core Web Vitals",
 };
 

@@ -3,7 +3,7 @@ import Footer from "@/components/shared/Footer";
 import StyledComponentsRegistry from "@/lib/StyledComponentsRegistry";
 
 export const metadata = {
-  title: "Bolt Store — Control (Legacy CSR)",
+  title: "Bolt Store | Control (Legacy CSR)",
 };
 
 export default function ControlLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +27,7 @@ export default function ControlLayout({ children }: { children: React.ReactNode 
         BLOCKING THIRD-PARTY SCRIPT SIMULATION
         This inline script deliberately blocks the main thread for ~200ms,
         simulating the cost of loading analytics, chat widgets, or consent
-        managers synchronously — a common anti-pattern in production sites.
+        managers synchronously: a common anti-pattern in production sites.
       */}
       {process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false" && (
         <script

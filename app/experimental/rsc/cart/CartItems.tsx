@@ -42,16 +42,28 @@ export default function CartItems({
   );
 
   const handleQuantityChange = (productId: number, delta: number) => {
+    window.dispatchEvent(
+      new CustomEvent("bolt-cart-updated", { detail: { optimisticDelta: delta } })
+    );
     startTransition(() => {
       addOptimisticAction({ type: "update", productId, delta });
-      updateCartQuantity(productId, delta);
+      updateCartQuantity(productId, delta).then(() => {
+        window.dispatchEvent(new Event("bolt-cart-updated"));
+      });
     });
   };
 
   const handleRemove = (productId: number) => {
+    const removed = optimisticItems.find((item) => item.productId === productId);
+    const delta = removed ? -removed.quantity : 0;
+    window.dispatchEvent(
+      new CustomEvent("bolt-cart-updated", { detail: { optimisticDelta: delta } })
+    );
     startTransition(() => {
       addOptimisticAction({ type: "remove", productId });
-      removeFromCart(productId);
+      removeFromCart(productId).then(() => {
+        window.dispatchEvent(new Event("bolt-cart-updated"));
+      });
     });
   };
 

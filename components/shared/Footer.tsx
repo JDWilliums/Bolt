@@ -39,8 +39,8 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-neutral-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-neutral-300">
-          <p>&copy; 2025 Bolt. BSc Dissertation Artifact — Jack Williams.</p>
-          <p>Cardiff Metropolitan University — ST20271634</p>
+          <p>&copy; 2026 Bolt. BSc Dissertation Artifact - Jack Williams.</p>
+          <p>Cardiff Metropolitan University - ST20271634</p>
         </div>
       </div>
     </footer>

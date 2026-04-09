@@ -23,6 +23,7 @@ export default function ImageOptHomepage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [addingToCart, setAddingToCart] = useState<number | null>(null);
+  const [addedToCart, setAddedToCart] = useState<number | null>(null);
 
   // ANTI-PATTERN: REQUEST WATERFALL (kept from control)
   useEffect(() => {
@@ -51,8 +52,9 @@ export default function ImageOptHomepage() {
     if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
       await new Promise((resolve) => setTimeout(resolve, 800));
     addToLocalStorageCart(id);
-    alert("Added to cart!");
     setAddingToCart(null);
+    setAddedToCart(id);
+    setTimeout(() => setAddedToCart((curr) => (curr === id ? null : curr)), 1500);
   };
 
   if (loading) {
@@ -102,7 +104,51 @@ export default function ImageOptHomepage() {
         </div>
       </section>
 
-      <div className="max-w-[1600px] mx-auto px-4 md:px-8">
+      <div className="max-w-[1600px] mx-auto">
+        {/* ─── NEW ARRIVALS CAROUSEL ──────────────────────────── */}
+        {/* Mirrors the control + modern carousels for content parity.
+            OPTIMISED: next/image with AVIF, quality 60, blur placeholder.
+            Still client-side sort (kept from control). */}
+        <section id="new-arrivals" className="mb-20 px-4 md:px-8">
+          <div className="flex justify-between items-end mb-8">
+            <h2 className="text-3xl font-extrabold tracking-tight">New Arrivals</h2>
+            <span className="text-gray-500 font-medium hidden md:block">Swipe to explore &rarr;</span>
+          </div>
+          <div className="flex overflow-x-auto gap-6 pb-8">
+            {[...data]
+              .sort((a, b) => b.id - a.id)
+              .slice(0, 6)
+              .map((product) => {
+                const blurDataURL = blurMap[product.imageUrl];
+                return (
+                  <div key={product.id} className="min-w-[280px] md:min-w-[350px] flex flex-col">
+                    <a href={`/experimental/image-opt/product/${product.id}`} className="block mb-4">
+                      <div className="relative w-full bg-neutral-100 overflow-hidden rounded-lg" style={{ aspectRatio: "4/5" }}>
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.name}
+                          fill
+                          sizes="350px"
+                          quality={60}
+                          placeholder={blurDataURL ? "blur" : "empty"}
+                          blurDataURL={blurDataURL || undefined}
+                          className="object-cover hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2 left-2 bg-white text-black text-xs font-bold px-3 py-1 uppercase tracking-wider rounded">
+                          Just Dropped
+                        </div>
+                      </div>
+                    </a>
+                    <h3 className="text-lg font-bold">{product.name}</h3>
+                    <p className="text-gray-500">{product.category}</p>
+                    <p className="font-bold text-xl mt-2">£{(product.price / 100).toFixed(2)}</p>
+                  </div>
+                );
+              })}
+          </div>
+        </section>
+
+        <div className="px-4 md:px-8">
         <section id="shop" className="mb-8">
           <h2 className="text-3xl font-extrabold tracking-tight mb-6">The Collection</h2>
           <div className="flex flex-wrap gap-3 mb-8">
@@ -151,10 +197,18 @@ export default function ImageOptHomepage() {
                     <p className="font-bold text-base mb-3">£{(product.price / 100).toFixed(2)}</p>
                     <button
                       onClick={() => handleAddToCart(product.id)}
-                      disabled={addingToCart === product.id}
-                      className="mt-auto w-full bg-black text-white py-2.5 rounded-full text-sm font-medium hover:bg-neutral-800 disabled:bg-neutral-400 transition-colors"
+                      disabled={addingToCart === product.id || addedToCart === product.id}
+                      className={`mt-auto w-full py-2.5 rounded-full text-sm font-medium transition-colors ${
+                        addedToCart === product.id
+                          ? "bg-green-600 text-white"
+                          : "bg-black text-white hover:bg-neutral-800 disabled:bg-neutral-400"
+                      }`}
                     >
-                      {addingToCart === product.id ? "Adding..." : "Add to Cart"}
+                      {addingToCart === product.id
+                        ? "Adding..."
+                        : addedToCart === product.id
+                        ? "Added ✓"
+                        : "Add to Cart"}
                     </button>
                   </div>
                 </div>
@@ -162,6 +216,7 @@ export default function ImageOptHomepage() {
             })}
           </div>
         </section>
+        </div>
       </div>
     </main>
   );

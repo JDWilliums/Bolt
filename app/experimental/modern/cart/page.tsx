@@ -8,7 +8,7 @@ import { getCart } from "@/app/actions";
 import CartItems from "./CartItems";
 
 export const metadata = {
-  title: "Your Cart — Bolt Store",
+  title: "Your Cart | Bolt Store",
 };
 
 // ──────────────────────────────────────────────────────────────────

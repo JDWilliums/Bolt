@@ -52,16 +52,31 @@ export default function CartItems({
   );
 
   const handleQuantityChange = (productId: number, delta: number) => {
+    // Instant optimistic update to the Navbar badge (0ms perceived delay).
+    window.dispatchEvent(
+      new CustomEvent("bolt-cart-updated", { detail: { optimisticDelta: delta } })
+    );
     startTransition(() => {
       addOptimisticAction({ type: "update", productId, delta });
-      updateCartQuantity(productId, delta, nodelay);
+      updateCartQuantity(productId, delta, nodelay).then(() => {
+        // Reconcile the badge with the authoritative cookie state.
+        window.dispatchEvent(new Event("bolt-cart-updated"));
+      });
     });
   };
 
   const handleRemove = (productId: number) => {
+    // Removing a line subtracts the full quantity of that line.
+    const removed = optimisticItems.find((item) => item.productId === productId);
+    const delta = removed ? -removed.quantity : 0;
+    window.dispatchEvent(
+      new CustomEvent("bolt-cart-updated", { detail: { optimisticDelta: delta } })
+    );
     startTransition(() => {
       addOptimisticAction({ type: "remove", productId });
-      removeFromCart(productId, nodelay);
+      removeFromCart(productId, nodelay).then(() => {
+        window.dispatchEvent(new Event("bolt-cart-updated"));
+      });
     });
   };
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/db'; // Adjust import path if your db folder is elsewhere
+import { db } from '@/db';
 import { products } from '@/db/schema';
 
 export async function GET() {

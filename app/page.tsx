@@ -5,13 +5,13 @@ export default function LandingPage() {
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
       <div className="max-w-4xl text-center mb-16">
         <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter uppercase mb-4">
-          Bolt
+          Bolt.
         </h1>
         <p className="text-lg text-neutral-400 max-w-xl mx-auto">
-          BSc Dissertation Artifact — Optimising Modern Web Application Performance:
+          BSc Dissertation Artifact - Optimising Modern Web Application Performance:
           An Empirical Analysis of Core Web Vitals and Perceived Latency.
         </p>
-        <p className="text-sm text-neutral-600 mt-2">Jack Williams — ST20271634 — Cardiff Metropolitan University</p>
+        <p className="text-sm text-neutral-600 mt-2">Jack Williams - ST20271634 - Cardiff Metropolitan University</p>
       </div>
 
       {/* ─── STAGE PROGRESSION ─────────────────────────────────── */}
@@ -29,7 +29,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-5 gap-6 w-full max-w-6xl">
         {/* ─── CONTROL ─────────────────────────────────────────── */}
         <Link
           href="/control/legacy"
@@ -154,7 +154,7 @@ export default function LandingPage() {
       {/* ─── BENCHMARK INFO ────────────────────────────────────── */}
       <div className="mt-12 text-center text-xs text-neutral-700 max-w-2xl">
         <p>Each stage is benchmarked across No Throttling, 4G, Fast 3G, and Slow 3G network profiles.</p>
-        <p className="mt-1">Metrics: FCP, LCP, TBT, CLS, SI — 10 iterations per page, trimmed median.</p>
+        <p className="mt-1">Metrics: FCP, LCP, TBT, CLS, SI - 10 iterations per page, trimmed median.</p>
       </div>
     </main>
   );

@@ -27,7 +27,7 @@ export default function HeroCinematic() {
       </div>
 
       {/* FOREGROUND CONTENT */}
-      <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto flex flex-col items-center">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-6 uppercase drop-shadow-lg">
           Push Your Limits.
         </h1>

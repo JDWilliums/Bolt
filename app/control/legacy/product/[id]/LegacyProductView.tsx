@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { addToLocalStorageCart } from "@/lib/cart";
 
 interface Product {
   id: number;
@@ -20,6 +21,7 @@ export default function LegacyProductView() {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   // REQUEST WATERFALL: Component mounts → JS executes → fetch fires
   useEffect(() => {
@@ -39,16 +41,15 @@ export default function LegacyProductView() {
   }, [params.id]);
 
   const handleAddToCart = async () => {
-    if (!selectedSize) {
-      alert("Please select a size");
-      return;
-    }
+    if (!product) return;
     setAddingToCart(true);
     // PESSIMISTIC UI: Block for 800ms while "server processes"
     if (process.env.NEXT_PUBLIC_BOLT_SIMULATE_DELAY !== "false")
       await new Promise((resolve) => setTimeout(resolve, 800));
-    alert(`Added ${product?.name} (${selectedSize}) to cart!`);
+    addToLocalStorageCart(product.id);
     setAddingToCart(false);
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 1500);
   };
 
   if (loading) {
@@ -122,14 +123,20 @@ export default function LegacyProductView() {
           {/* ADD TO CART — pessimistic, blocks while waiting */}
           <button
             onClick={handleAddToCart}
-            disabled={addingToCart}
-            className="w-full bg-black text-white py-4 rounded-full font-bold text-base hover:bg-neutral-800 disabled:bg-neutral-400 transition-colors"
+            disabled={addingToCart || addedToCart}
+            className={`w-full py-4 rounded-full font-bold text-base transition-colors ${
+              addedToCart
+                ? "bg-green-600 text-white"
+                : "bg-black text-white hover:bg-neutral-800 disabled:bg-neutral-400"
+            }`}
           >
             {addingToCart ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                 Adding to Cart...
               </span>
+            ) : addedToCart ? (
+              "Added ✓"
             ) : (
               "Add to Cart"
             )}

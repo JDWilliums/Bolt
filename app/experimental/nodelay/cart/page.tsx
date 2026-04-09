@@ -7,7 +7,7 @@ import { getCart } from "@/app/actions";
 import CartItems from "@/app/experimental/modern/cart/CartItems";
 
 export const metadata = {
-  title: "Your Cart — Bolt Store",
+  title: "Your Cart | Bolt Store",
 };
 
 export default async function NoDelayCartPage() {

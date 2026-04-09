@@ -3,7 +3,7 @@ import Footer from "@/components/shared/Footer";
 import StyledComponentsRegistry from "@/lib/StyledComponentsRegistry";
 
 export const metadata = {
-  title: "Bolt Store — Image Optimised (Stage A)",
+  title: "Bolt Store | Image Optimised (Stage A)",
 };
 
 export default function ImageOptLayout({ children }: { children: React.ReactNode }) {

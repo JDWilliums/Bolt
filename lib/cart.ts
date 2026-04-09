@@ -3,6 +3,14 @@ export interface CartItem {
   quantity: number;
 }
 
+// Notify any listening UI (e.g. the Navbar CartBadge) that the
+// localStorage cart has changed. The `storage` event only fires
+// across tabs, so this custom event handles same-tab updates.
+function notifyCartUpdated() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event("bolt-cart-updated"));
+}
+
 // ─── localStorage helpers (Control Group) ────────────────────────
 export function getLocalStorageCart(): CartItem[] {
   if (typeof window === "undefined") return [];
@@ -22,6 +30,7 @@ export function addToLocalStorageCart(productId: number): CartItem[] {
     cart.push({ productId, quantity: 1 });
   }
   localStorage.setItem("bolt-cart", JSON.stringify(cart));
+  notifyCartUpdated();
   return cart;
 }
 
@@ -36,6 +45,7 @@ export function updateLocalStorageQuantity(
     cart = cart.filter((item) => item.quantity > 0);
   }
   localStorage.setItem("bolt-cart", JSON.stringify(cart));
+  notifyCartUpdated();
   return cart;
 }
 
@@ -44,5 +54,6 @@ export function removeFromLocalStorageCart(productId: number): CartItem[] {
     (item) => item.productId !== productId
   );
   localStorage.setItem("bolt-cart", JSON.stringify(cart));
+  notifyCartUpdated();
   return cart;
 }

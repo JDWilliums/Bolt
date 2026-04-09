@@ -375,15 +375,15 @@ const allProducts = [
 ];
 
 async function main() {
-  console.log("🌱 Seeding database with 50 products...");
+  console.log("Seeding database with 50 products...");
 
   try {
     // Clear existing data for a clean slate
     await db.delete(products);
-    console.log("🗑️  Cleared existing products.");
+    console.log("Cleared existing products.");
 
     await db.insert(products).values(allProducts);
-    console.log(`✅ Successfully seeded ${allProducts.length} products!`);
+    console.log(`Successfully seeded ${allProducts.length} products!`);
 
     // Print category breakdown
     const categories = [...new Set(allProducts.map(p => p.category))];
@@ -392,7 +392,7 @@ async function main() {
       console.log(`   ${cat}: ${count} products`);
     }
   } catch (error) {
-    console.error("❌ Error seeding database:", error);
+    console.error("Error seeding database:", error);
   } finally {
     process.exit(0);
   }
