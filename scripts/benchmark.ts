@@ -141,7 +141,23 @@ async function runLighthouse(
   const lighthouse = (await import("lighthouse")).default;
   const flags = getLighthouseFlags(profile);
 
-  const result = await lighthouse(url, { ...flags, port });
+  // Raise Lighthouse's navigation timeout from the default 45s to 120s.
+  // The unoptimised Control storefront under Slow 3G can take well over
+  // 60 seconds to reach a quiescent network state because it downloads
+  // fifty 3000px unoptimised JPEGs over a 400 kbps pipe. A 45s timeout
+  // silently kills those runs and causes gaps in the results table, so
+  // we extend the ceiling to 120s to ensure the worst-case baseline is
+  // actually measurable. This change affects all profiles and stages
+  // for consistency; faster stages still complete well within the old
+  // default and are unaffected.
+  const config = {
+    extends: "lighthouse:default",
+    settings: {
+      maxWaitForLoad: 120000,
+    },
+  };
+
+  const result = await lighthouse(url, { ...flags, port }, config);
 
   if (!result || !result.lhr) {
     throw new Error(`Lighthouse failed for ${url}`);
@@ -318,11 +334,23 @@ function printComparisonTable(results: URLResult[]) {
     console.log(`${"Page".padEnd(20)}${"Metric".padEnd(8)}${stageHeaders}`);
     console.log("-".repeat(20 + 8 + stages.length * 16));
 
-    const refResults = results.filter(
-      (r) => r.stage === stages[0] && r.profile === profile
-    );
+    // Build the list of pages to display for this profile. Previously
+    // this was anchored to successful Control rows, which caused the
+    // entire row to disappear whenever Control failed to measure —
+    // even if every other stage succeeded for that same page. We now
+    // union the labels from every stage that produced at least one
+    // successful measurement for this profile, preserving the
+    // canonical page ordering defined in lighthouse-config.ts.
+    const pageLabelsInOrder: string[] = [];
+    const seenLabels = new Set<string>();
+    for (const r of results) {
+      if (r.profile !== profile) continue;
+      if (seenLabels.has(r.label)) continue;
+      seenLabels.add(r.label);
+      pageLabelsInOrder.push(r.label);
+    }
 
-    for (const ref of refResults) {
+    for (const label of pageLabelsInOrder) {
       const metricsToShow: { key: keyof RunMetrics; label: string }[] = [
         { key: "LCP_ms", label: "LCP" },
         { key: "TBT_ms", label: "TBT" },
@@ -331,12 +359,12 @@ function printComparisonTable(results: URLResult[]) {
       ];
 
       for (let mi = 0; mi < metricsToShow.length; mi++) {
-        const { key, label } = metricsToShow[mi];
-        const pageName = mi === 0 ? ref.label : "";
+        const { key, label: metricLabel } = metricsToShow[mi];
+        const pageName = mi === 0 ? label : "";
 
         const values = stages.map((stage) => {
           const r = results.find(
-            (x) => x.stage === stage && x.profile === profile && x.label === ref.label
+            (x) => x.stage === stage && x.profile === profile && x.label === label
           );
           if (!r) return "N/A".padStart(16);
 
@@ -346,7 +374,7 @@ function printComparisonTable(results: URLResult[]) {
 
           if (stage !== "control" && stages.includes("control")) {
             const ctrl = results.find(
-              (x) => x.stage === "control" && x.profile === profile && x.label === ref.label
+              (x) => x.stage === "control" && x.profile === profile && x.label === label
             );
             if (ctrl && ctrl.median[key] !== 0) {
               const delta = pctChange(ctrl.median[key], val);
@@ -356,7 +384,7 @@ function printComparisonTable(results: URLResult[]) {
           return `${formatted}${unit}`.padStart(16);
         });
 
-        console.log(`${pageName.padEnd(20)}${label.padEnd(8)}${values.join("")}`);
+        console.log(`${pageName.padEnd(20)}${metricLabel.padEnd(8)}${values.join("")}`);
       }
       console.log("-".repeat(20 + 8 + stages.length * 16));
     }

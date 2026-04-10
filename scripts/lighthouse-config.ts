@@ -1,6 +1,4 @@
 /**
- * Shared Lighthouse configuration for the Bolt dissertation.
- *
  * Supports 4 stages (Control, Image Opt, RSC, Full) across 3 network
  * profiles (Slow 3G, Fast 3G, 4G). This matches the test conditions
  * described in Section 3.4 of the dissertation methodology.
