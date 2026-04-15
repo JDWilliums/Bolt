@@ -29,11 +29,11 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-5 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-5 gap-1 w-full max-w-7xl">
         {/* ─── CONTROL ─────────────────────────────────────────── */}
         <Link
           href="/control/legacy"
-          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-red-500 transition-all hover:bg-neutral-950 flex flex-col"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-red-500 transition-all hover:bg-neutral-950 flex flex-col gap-6"
         >
           
           <h2 className="text-2xl font-bold mb-3">Legacy CSR</h2>
@@ -47,7 +47,7 @@ export default function LandingPage() {
             <li>• Client-side sorting (main thread blocking)</li>
             <li>• localStorage cart with sequential fetches</li>
           </ul>
-          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+          <div className="mt-auto self-center px-4 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
             Open
           </div>
         </Link>
@@ -55,7 +55,7 @@ export default function LandingPage() {
         {/* ─── STAGE A: IMAGE OPTIMISED ────────────────────────── */}
         <Link
           href="/experimental/image-opt"
-          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-orange-500 transition-all hover:bg-neutral-950 flex flex-col"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-orange-500 transition-all hover:bg-neutral-950 flex flex-col gap-6"
         >
           
           <h2 className="text-2xl font-bold mb-3">CSR + Optimised Images</h2>
@@ -69,7 +69,7 @@ export default function LandingPage() {
             <li className="text-neutral-600">• Still useEffect waterfall</li>
             <li className="text-neutral-600">• Still pessimistic UI / localStorage cart</li>
           </ul>
-          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+          <div className="mt-auto self-center px-4 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
             Open
           </div>
         </Link>
@@ -77,7 +77,7 @@ export default function LandingPage() {
         {/* ─── STAGE B: SERVER COMPONENTS ───────────────────────── */}
         <Link
           href="/experimental/rsc"
-          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-blue-500 transition-all hover:bg-neutral-950 flex flex-col"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-blue-500 transition-all hover:bg-neutral-950 flex flex-col gap-6"
         >
           
           <h2 className="text-2xl font-bold mb-3">RSC + Streaming</h2>
@@ -91,7 +91,7 @@ export default function LandingPage() {
             <li>• <span className="text-blue-400">Cookie-based cart via server actions</span></li>
             <li className="text-neutral-600">• No PPR or static generation (fully dynamic)</li>
           </ul>
-          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+          <div className="mt-auto self-center px-4 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
             Open
           </div>
         </Link>
@@ -99,7 +99,7 @@ export default function LandingPage() {
         {/* ─── STAGE C: FULLY OPTIMISED (PPR) ──────────────────── */}
         <Link
           href="/experimental/modern"
-          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-green-500 transition-all hover:bg-neutral-950 flex flex-col"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-green-500 transition-all hover:bg-neutral-950 flex flex-col gap-6"
         >
           
           <h2 className="text-2xl font-bold mb-3">RSC + PPR + SSG</h2>
@@ -113,7 +113,7 @@ export default function LandingPage() {
             <li>• Optimistic UI + cookie cart</li>
             <li>• next/image with AVIF + blur placeholders</li>
           </ul>
-          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+          <div className="mt-auto self-center px-4 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
             Open
           </div>
         </Link>
@@ -121,7 +121,7 @@ export default function LandingPage() {
         {/* ─── STAGE D: NO DELAY ──────────────────────────────── */}
         <Link
           href="/experimental/nodelay"
-          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-purple-500 transition-all hover:bg-neutral-950 flex flex-col"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-purple-500 transition-all hover:bg-neutral-950 flex flex-col gap-6"
         >
           
           <h2 className="text-2xl font-bold mb-3">Zero Artificial Latency</h2>
@@ -135,7 +135,7 @@ export default function LandingPage() {
             <li>• Closest to a real optimised production site</li>
             <li>• Best-case Next.js performance baseline</li>
           </ul>
-          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+          <div className="mt-auto self-center px-4 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
             Open
           </div>
         </Link>
