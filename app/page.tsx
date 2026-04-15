@@ -16,16 +16,16 @@ export default function LandingPage() {
 
       {/* ─── STAGE PROGRESSION ─────────────────────────────────── */}
       <div className="w-full max-w-4xl mb-8">
-        <div className="flex items-center justify-center gap-2 text-xs text-neutral-600 mb-8">
-          <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full font-bold">Control</span>
-          <span className="text-neutral-700">→</span>
-          <span className="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-bold">+ Images</span>
-          <span className="text-neutral-700">→</span>
-          <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full font-bold">+ RSC</span>
-          <span className="text-neutral-700">→</span>
-          <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-bold">+ PPR</span>
-          <span className="text-neutral-700">→</span>
-          <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full font-bold">No Delay</span>
+        <div className="flex items-center justify-center gap-2 text-s text-neutral-600 mb-8">
+          <span className="bg-red-500/20 text-white px-3 py-1 rounded-full font-bold">Control</span>
+          <span className="text-white">→</span>
+          <span className="bg-orange-500/20 text-white px-3 py-1 rounded-full font-bold">+ Images</span>
+          <span className="text-white">→</span>
+          <span className="bg-blue-500/20 text-white px-3 py-1 rounded-full font-bold">+ RSC</span>
+          <span className="text-white">→</span>
+          <span className="bg-green-500/20 text-white px-3 py-1 rounded-full font-bold">+ PPR</span>
+          <span className="text-white">→</span>
+          <span className="bg-purple-500/20 text-white px-3 py-1 rounded-full font-bold">No Delay</span>
         </div>
       </div>
 
@@ -33,11 +33,9 @@ export default function LandingPage() {
         {/* ─── CONTROL ─────────────────────────────────────────── */}
         <Link
           href="/control/legacy"
-          className="group border border-neutral-800 rounded-2xl p-8 hover:border-red-500 transition-all hover:bg-neutral-950"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-red-500 transition-all hover:bg-neutral-950 flex flex-col"
         >
-          <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-3">
-            Baseline — Control
-          </div>
+          
           <h2 className="text-2xl font-bold mb-3">Legacy CSR</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
             <li>• Client-side data fetching (useEffect waterfall)</li>
@@ -49,19 +47,17 @@ export default function LandingPage() {
             <li>• Client-side sorting (main thread blocking)</li>
             <li>• localStorage cart with sequential fetches</li>
           </ul>
-          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
-            Open Control Store &rarr;
+          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+            Open
           </div>
         </Link>
 
         {/* ─── STAGE A: IMAGE OPTIMISED ────────────────────────── */}
         <Link
           href="/experimental/image-opt"
-          className="group border border-neutral-800 rounded-2xl p-8 hover:border-orange-500 transition-all hover:bg-neutral-950"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-orange-500 transition-all hover:bg-neutral-950 flex flex-col"
         >
-          <div className="text-xs font-bold uppercase tracking-widest text-orange-500 mb-3">
-            Stage A — Image Optimised
-          </div>
+          
           <h2 className="text-2xl font-bold mb-3">CSR + Optimised Images</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
             <li>• <span className="text-orange-400">next/image (AVIF, quality 60, responsive)</span></li>
@@ -73,19 +69,17 @@ export default function LandingPage() {
             <li className="text-neutral-600">• Still useEffect waterfall</li>
             <li className="text-neutral-600">• Still pessimistic UI / localStorage cart</li>
           </ul>
-          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
-            Open Image-Optimised Store &rarr;
+          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+            Open
           </div>
         </Link>
 
         {/* ─── STAGE B: SERVER COMPONENTS ───────────────────────── */}
         <Link
           href="/experimental/rsc"
-          className="group border border-neutral-800 rounded-2xl p-8 hover:border-blue-500 transition-all hover:bg-neutral-950"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-blue-500 transition-all hover:bg-neutral-950 flex flex-col"
         >
-          <div className="text-xs font-bold uppercase tracking-widest text-blue-500 mb-3">
-            Stage B — Server Components
-          </div>
+          
           <h2 className="text-2xl font-bold mb-3">RSC + Streaming</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
             <li>• <span className="text-blue-400">React Server Components (zero client JS)</span></li>
@@ -97,19 +91,17 @@ export default function LandingPage() {
             <li>• <span className="text-blue-400">Cookie-based cart via server actions</span></li>
             <li className="text-neutral-600">• No PPR or static generation (fully dynamic)</li>
           </ul>
-          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
-            Open RSC Store &rarr;
+          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+            Open
           </div>
         </Link>
 
         {/* ─── STAGE C: FULLY OPTIMISED (PPR) ──────────────────── */}
         <Link
           href="/experimental/modern"
-          className="group border border-neutral-800 rounded-2xl p-8 hover:border-green-500 transition-all hover:bg-neutral-950"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-green-500 transition-all hover:bg-neutral-950 flex flex-col"
         >
-          <div className="text-xs font-bold uppercase tracking-widest text-green-500 mb-3">
-            Stage C — Fully Optimised
-          </div>
+          
           <h2 className="text-2xl font-bold mb-3">RSC + PPR + SSG</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
             <li>• <span className="text-green-400">Partial Prerendering (instant static shell)</span></li>
@@ -121,19 +113,17 @@ export default function LandingPage() {
             <li>• Optimistic UI + cookie cart</li>
             <li>• next/image with AVIF + blur placeholders</li>
           </ul>
-          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
-            Open Fully-Optimised Store &rarr;
+          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+            Open
           </div>
         </Link>
 
         {/* ─── STAGE D: NO DELAY ──────────────────────────────── */}
         <Link
           href="/experimental/nodelay"
-          className="group border border-neutral-800 rounded-2xl p-8 hover:border-purple-500 transition-all hover:bg-neutral-950"
+          className="group border border-neutral-800 rounded-2xl p-8 pb-6 hover:border-purple-500 transition-all hover:bg-neutral-950 flex flex-col"
         >
-          <div className="text-xs font-bold uppercase tracking-widest text-purple-500 mb-3">
-            Stage D — No Delay
-          </div>
+          
           <h2 className="text-2xl font-bold mb-3">Zero Artificial Latency</h2>
           <ul className="text-sm text-neutral-400 space-y-1.5">
             <li>• <span className="text-purple-400">All simulated delays removed</span></li>
@@ -145,8 +135,8 @@ export default function LandingPage() {
             <li>• Closest to a real optimised production site</li>
             <li>• Best-case Next.js performance baseline</li>
           </ul>
-          <div className="mt-6 text-sm font-medium text-neutral-500 group-hover:text-white transition-colors">
-            Open No-Delay Store &rarr;
+          <div className="mt-auto self-center rounded border border-neutral-700 bg-neutral-950 px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors duration-200 group-hover:border-white group-hover:bg-white group-hover:text-black">
+            Open
           </div>
         </Link>
       </div>
