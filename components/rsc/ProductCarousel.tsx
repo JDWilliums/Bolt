@@ -14,7 +14,7 @@ export default async function RSCProductCarousel() {
         <span className="text-gray-500 font-medium hidden md:block">Swipe to explore &rarr;</span>
       </div>
 
-      <div className="flex overflow-x-auto gap-6 pb-8 px-4 md:px-8 snap-x snap-mandatory hide-scrollbar">
+      <div className="flex overflow-x-auto gap-6 pb-8 px-4 md:px-8 snap-x snap-mandatory">
         {carouselData.map((product) => (
           <div
             key={product.id}

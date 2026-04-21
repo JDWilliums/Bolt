@@ -16,7 +16,7 @@ export default async function ProductCarousel() {
       </div>
 
       {/* CSS-ONLY CAROUSEL: overflow-x-auto and snap-x eliminate the need for JavaScript */}
-      <div className="flex overflow-x-auto gap-6 pb-8 px-4 md:px-8 snap-x snap-mandatory hide-scrollbar">
+      <div className="flex overflow-x-auto gap-6 pb-8 px-4 md:px-8 snap-x snap-mandatory">
         {carouselData.map((product) => (
           <div 
             key={product.id} 
