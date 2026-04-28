@@ -12,12 +12,32 @@ export default function Navbar({ basePath }: { basePath: string }) {
       </div>
 
       <div className="max-w-[1600px] mx-auto flex items-center justify-between px-4 md:px-8 h-14">
+        {/* Mobile hamburger - CSS-only dropdown via <details>/<summary> */}
+        <details className="md:hidden relative group">
+          <summary className="list-none cursor-pointer p-2 -ml-2" aria-label="Open menu">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </summary>
+          <div className="absolute top-full left-0 mt-1 bg-black border border-neutral-800 rounded-md shadow-lg min-w-[200px] py-2 z-50">
+            {categories.map((cat) => (
+              <Link
+                key={cat}
+                href={`${basePath}/category/${cat.toLowerCase()}`}
+                className="block px-4 py-3 text-sm font-medium hover:bg-neutral-900 transition-colors"
+              >
+                {cat}
+              </Link>
+            ))}
+          </div>
+        </details>
+
         {/* Logo */}
         <Link href={basePath} className="text-xl font-extrabold tracking-tighter uppercase">
           Bolt.
         </Link>
 
-        {/* Category Links - now point to dedicated category pages */}
+        {/* Category Links - desktop only */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
           {categories.map((cat) => (
             <Link
